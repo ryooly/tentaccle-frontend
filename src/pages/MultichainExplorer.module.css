@@ -1,0 +1,57 @@
+.page {
+  position: relative;
+  overflow-x: hidden;
+  min-height: var(--height-100vh);
+  background: var(--gradient-page);
+  color: var(--color-darkslateblue);
+  font-family: var(--font-inter);
+}
+
+/* Keep every section above the NetworkBackdrop layer. */
+.page > *:not(:first-child) {
+  position: relative;
+  z-index: 1;
+}
+
+/* The desktop-only warning banner — hidden on large screens, shown on mobile. */
+.desktopNotice {
+  display: none;
+}
+
+/* Fluid shells matching the hero's content columns: viewport minus the shared gutter,
+   capped so lines stay readable even on very wide displays. */
+.discovery {
+  width: min(100% - var(--shell-gutter) * 2, 1240px);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(211px, 1fr));
+  gap: var(--gap-16);
+  margin: 0 auto;
+  padding: var(--padding-0) var(--padding-0) var(--padding-48);
+}
+
+@media (max-width: 825px) {
+  .desktopNotice {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-12);
+    margin: var(--margin-16);
+    padding: var(--padding-14) var(--padding-16);
+    border: var(--border-warning);
+    border-radius: var(--br-16);
+    background: var(--color-warningbg);
+    color: var(--color-warningink);
+    font-size: var(--fs-14);
+    font-weight: var(--fw-700);
+    line-height: var(--lh-20);
+  }
+  .noticeIcon {
+    flex: none;
+    font-size: var(--fs-20);
+    line-height: var(--lh-26);
+  }
+  .discovery {
+    width: auto;
+    grid-template-columns: repeat(2, 1fr);
+    padding: var(--padding-0) var(--padding-16) var(--padding-24);
+  }
+}

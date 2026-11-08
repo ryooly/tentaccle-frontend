@@ -1,0 +1,96 @@
+.card {
+  /* Fills whatever column width the fluid categories grid hands out; the octopus-style
+     scaling keeps the copy comfortable at any desktop size. */
+  width: 100%;
+  height: var(--height-112);
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--gap-20);
+  padding: var(--padding-15) var(--padding-17) var(--padding-27)
+    var(--padding-20);
+  border-radius: var(--br-20);
+  color: var(--color-darkslateblue);
+  cursor: pointer;
+  font-family: var(--font-inter);
+  text-align: left;
+  box-shadow: 0px 6px 0px var(--tone-shadow, var(--color-thistle-200));
+  transition:
+    transform var(--duration-hover) ease,
+    box-shadow var(--duration-hover) ease,
+    border-color var(--duration-hover) ease;
+}
+
+/* Hover: rides the same swell as the blockchain cards — lift off the surface, scale up,
+   deeper offset shadow and an accent border; pressing sinks back with a fast settle. */
+.card:hover {
+  transform: translateY(-6px) scale(1.05);
+  box-shadow: 0px 12px 0px var(--tone-shadow, var(--color-thistle-200));
+  border-color: var(--color-darkorchid);
+}
+.card:focus-visible {
+  outline: var(--border-focus);
+  outline-offset: 3px;
+}
+.card:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0px 2px 0px var(--tone-shadow, var(--color-thistle-200));
+  transition-duration: 0.06s;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-17);
+}
+
+.copy strong {
+  font-size: var(--fs-23);
+  font-weight: var(--fw-800);
+  line-height: var(--lh-30);
+}
+.copy small {
+  color: var(--color-slategray-300);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-500);
+  line-height: var(--lh-16);
+}
+.arrow {
+  font-size: var(--fs-23);
+  font-weight: var(--fw-700);
+  line-height: var(--lh-30);
+  /* Like the chain cards' ↗: hidden at rest, sliding in when the card is engaged. */
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity var(--duration-hover) ease,
+    transform var(--duration-hover) ease;
+}
+.card:hover .arrow,
+.card:focus-visible .arrow {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Each tone keeps its own drop color (like the chain cards keep --shadow-drop); the
+   shared .card rules deepen that same shadow on hover and flatten it on press. */
+.defi {
+  --tone-shadow: var(--color-plum);
+  border: var(--border-plum);
+  background: var(--color-lavender-300);
+}
+.tokens {
+  --tone-shadow: var(--color-paleturquoise);
+  border: var(--border-mint);
+  background: var(--color-mintcream);
+}
+.bridges {
+  --tone-shadow: var(--color-lightsteelblue);
+  border: var(--border-blue);
+  background: var(--color-lavender-100);
+}
+.docs {
+  --tone-shadow: var(--color-wheat);
+  border: var(--border-wheat);
+  background: var(--color-antiquewhite);
+}

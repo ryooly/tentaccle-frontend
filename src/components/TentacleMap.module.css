@@ -1,0 +1,143 @@
+/* Each tentacle fades smoothly. When another tentacle is the active one, it turns gray
+   and recedes so the connected chain stands out. */
+.tentacle {
+  /* Pivot the slow sway around the anchored tip so the body undulates while the tip
+     (and its card) stay perfectly fixed. transform-box makes --pivot-* resolve in viewBox px. */
+  transform-box: view-box;
+  transform-origin: var(--pivot-x, 50%) var(--pivot-y, 50%);
+  animation: undulate var(--undulate-dur, 7s) ease-in-out infinite;
+  animation-delay: var(--undulate-delay, 0s);
+  transition:
+    opacity 0.35s ease,
+    filter 0.35s ease;
+}
+
+@keyframes undulate {
+  0%,
+  100% {
+    transform: rotate(calc(-1 * var(--undulate-amp, 0.6deg)));
+  }
+  50% {
+    transform: rotate(var(--undulate-amp, 0.6deg));
+  }
+}
+
+.dimmed {
+  filter: grayscale(1);
+  opacity: 0.3;
+}
+
+/* Traveling "gas pulse" that flows head → tip along the tentacle. Uses pathLength=100
+   so the dash math is identical on every tentacle regardless of its real length, and it
+   never moves the path geometry — the tips stay locked to their cards. */
+.pulse {
+  stroke-dasharray: 10 90;
+  animation: tentaclePulse var(--pulse-dur, 3.4s) linear infinite;
+  animation-delay: var(--pulse-delay, 0s);
+  filter: drop-shadow(0 0 5px rgba(198, 155, 249, 0.85));
+}
+
+@keyframes tentaclePulse {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+/* The hovered/connected tentacle glows brighter and beats faster. */
+.active .pulse {
+  stroke: #ffffff;
+  stroke-width: 10;
+  animation-duration: calc(var(--pulse-dur, 3.4s) / 1.7);
+  filter: drop-shadow(0 0 10px rgba(216, 178, 255, 1));
+}
+
+/* The head always keeps its full color — and works as a pressable button: it rides a
+   springy lift on hover, sinks and squashes against the tentacle bases while pressed
+   (fast 0.06s settle, like the other buttons), then springs back on release. The pivot
+   sits at the head's bottom so the squash compresses downward, never detaching from
+   the body. transform-box resolves the origin in viewBox px. */
+.head {
+  transform-box: view-box;
+  transform-origin: 672px 212px;
+  cursor: pointer;
+  transition:
+    opacity 0.35s ease,
+    transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.head:hover {
+  transform: translateY(-6px) scale(1.02);
+}
+.head:active {
+  transform: translateY(16px) scale(1.06, 0.86);
+  transition-duration: 0.06s;
+}
+/* No focus frame around the head — neither our own nor the browser's default ring.
+   The hover lift and press squash carry the interaction feedback instead. */
+.head:focus,
+.head:focus-visible {
+  outline: none;
+}
+
+/* Eyelids sit over each eye and mostly stay retracted (scaleY 0). Once per cycle they
+   slide down to fully cover the eye and snap back — a quick, natural blink. transform-box
+   makes --lid-* resolve in viewBox px so each lid pivots from the top of its own eye. */
+.eyelid {
+  transform-box: view-box;
+  transform-origin: var(--lid-x, 50%) var(--lid-y, 0%);
+  transform: scaleY(0);
+  animation: blink 5.2s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%,
+  86%,
+  100% {
+    transform: scaleY(0);
+  }
+  90%,
+  93% {
+    transform: scaleY(1);
+  }
+}
+
+/* Gentle mouth "chatter": the whole mouth+tongue group opens and closes, pivoting from the
+   top of the mouth. It loops faster than the blink (1.6s vs 5.2s) to add a livelier, more
+   attention-holding secondary motion without competing with the slow eye blink. */
+.mouth {
+  transform-box: view-box;
+  transform-origin: 672px 168.282px;
+  animation: mouthChatter 1.6s ease-in-out infinite;
+}
+
+@keyframes mouthChatter {
+  0%,
+  100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+/* Respect users who prefer no motion. */
+@media (prefers-reduced-motion: reduce) {
+  .tentacle {
+    transition: none;
+    animation: none;
+  }
+  .head {
+    transition: none;
+  }
+  .pulse {
+    animation: none;
+  }
+  .eyelid {
+    animation: none;
+  }
+  .mouth {
+    animation: none;
+  }
+}

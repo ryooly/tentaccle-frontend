@@ -1,0 +1,196 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,700;0,800&display=swap");
+
+:root {
+  --color-antiquewhite: #fff1de;
+  --color-appbackdrop: #e9e6f0;
+  --color-darkorchid: #8548d5;
+  --color-darkslateblue: #39235d;
+  --color-ghostwhite: #f8f5ff;
+  --color-lavender-100: #e8f0ff;
+  --color-lavender-200: #f0e8fc;
+  --color-lavender-300: #ede2ff;
+  --color-lavender-400: #e8dff2;
+  --color-lightslategray-100: #9985ab;
+  --color-lightslategray-200: #927daa;
+  --color-lightsteelblue: #becfee;
+  --color-mintcream: #e5f7f1;
+  --color-paleturquoise: #b5ded0;
+  --color-plum: #ccb2ec;
+  --color-slategray-100: #79638d;
+  --color-slategray-200: #667085;
+  --color-slategray-300: #746287;
+  --color-thistle-100: #dccdec;
+  --color-thistle-200: #d9caed;
+  --color-wheat: #ecd2aa;
+  --color-white: #fff;
+  --color-warningbg: #fff4e5;
+  --color-warningink: #8a5a12;
+  --font-inter: Inter, Arial, sans-serif;
+  --gradient-page: linear-gradient(180deg, #f8f5ff 0%, #f2ecfb 100%);
+  --fw-400: 400;
+  --fw-500: 500;
+  --fw-700: 700;
+  --fw-800: 800;
+  --gap-6: 6px;
+  --gap-12: 12px;
+  --gap-14: 14px;
+  --gap-16: 16px;
+  --gap-17: 17px;
+  --gap-20: 20px;
+  --gap-24: 24px;
+  --gap-52: 52px;
+  --gap-62: 62px;
+  --gap-102: 102px;
+  --padding-0: 0px;
+  --padding-4: 4px;
+  --padding-10: 10px;
+  --padding-11: 11px;
+  --padding-12: 12px;
+  --padding-14: 14px;
+  --padding-15: 15px;
+  --padding-16: 16px;
+  --padding-17: 17px;
+  --padding-18: 18px;
+  --padding-19: 19px;
+  --padding-20: 20px;
+  --padding-22: 22px;
+  --padding-23: 23px;
+  --padding-24: 24px;
+  --padding-27: 27px;
+  --padding-28: 28px;
+  --padding-32: 32px;
+  --padding-35: 35px;
+  --padding-40: 40px;
+  --padding-48: 48px;
+  --margin-0: 0px;
+  --margin-8: 8px;
+  --margin-16: 16px;
+  --margin-24: 24px;
+  --margin-48: 48px;
+  --margin-negative-112: -112px;
+  --br-14: 14px;
+  --br-16: 16px;
+  --br-20: 20px;
+  --br-24: 24px;
+  --br-26: 26px;
+  --fs-11: 11px;
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-15: 15px;
+  --fs-16: 16px;
+  --fs-20: 20px;
+  --fs-22: 22px;
+  --fs-23: 23px;
+  --fs-32: 32px;
+  --fs-36: 36px;
+  --lh-16: 16px;
+  --lh-18: 18px;
+  --lh-19: 19px;
+  --lh-20: 20px;
+  --lh-21: 21px;
+  --lh-26: 26px;
+  --lh-29: 29px;
+  --lh-30: 30px;
+  --lh-40: 40px;
+  --lh-50: 50px;
+  --height-1: 1px;
+  --height-24: 24px;
+  --height-46: 46px;
+  --height-48: 48px;
+  --height-52: 52px;
+  --height-92: 92px;
+  --height-96: 96px;
+  --height-112: 112px;
+  --height-148: 148px;
+  --height-2500: 2500px;
+  --height-2580: 2580px;
+  --height-2935: 2935px;
+  --height-100vh: 100vh;
+  --width-0: 0px;
+  --width-24: 24px;
+  --width-48: 48px;
+  --width-152: 152px;
+  --width-258: 258px;
+  --width-720: 720px;
+  --width-1112: 1112px;
+  --width-1344: 1344px;
+  --min-w-211: 211px;
+  --min-h-92: 92px;
+  --left-0: 0px;
+  --left-168: 168px;
+  --left-336: 336px;
+  --left-504: 504px;
+  --left-672: 672px;
+  --left-1176: 1176px;
+  --left-half: 50%;
+  --top-215: 215px;
+  --top-250: 250px;
+  --top-360: 360px;
+  --top-590: 590px;
+  --top-700: 700px;
+  --top-890: 890px;
+  --top-1240: 1240px;
+  --top-1440: 1440px;
+  --top-1980: 1980px;
+  --top-2380: 2380px;
+  --columns-4: 4;
+  --z-card: 1;
+  --inset-0: 0px;
+  --translate-half: -50%;
+  --translate-mobile-map: -25%;
+  --border-none: 0;
+  --border-1: 2px solid var(--color-thistle-100);
+  --border-2: 2px solid var(--color-thistle-200);
+  --border-wallet: 2px solid #d7c6ec;
+  --border-search: 2px solid #ddd2ee;
+  --border-plum: 2px solid var(--color-plum);
+  --border-mint: 2px solid var(--color-paleturquoise);
+  --border-blue: 2px solid var(--color-lightsteelblue);
+  --border-wheat: 2px solid var(--color-wheat);
+  --border-warning: 2px solid #f0c98a;
+  --shadow-drop: 0px 6px 0px #d7c6ec;
+  --shadow-drop-1: 0px 6px 0px var(--color-plum);
+  --shadow-drop-2: 0px 6px 0px var(--color-paleturquoise);
+  --shadow-drop-3: 0px 6px 0px var(--color-lightsteelblue);
+  --shadow-drop-4: 0px 6px 0px var(--color-wheat);
+  --shadow-drop-5: 0px 6px 0px var(--color-thistle-100);
+  --shadow-drop-6: 0px 6px 0px var(--color-thistle-200);
+  --shadow-panel: 0px 24px 70px rgba(57, 35, 93, 0.18);
+  --shadow-drop-hover: 0px 12px 0px var(--color-thistle-200);
+  --duration-hover: 0.18s;
+  --border-focus: 3px solid var(--color-darkorchid);
+  /* Shared side gutter for every fluid content shell; grows with the viewport but
+     stays bounded, so desktop layouts adapt from small laptops to 4K. */
+  --shell-gutter: clamp(16px, 3.4vw, 56px);
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  min-width: var(--width-0);
+  min-height: var(--height-100vh);
+  margin: var(--margin-0);
+}
+/* Smooth by default for wheel/anchor navigation and route-change jumps. The
+   search-and-jump glide overrides this per-frame with behavior:"instant" so its
+   own easing isn't double-animated. */
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+body {
+  font-family: var(--font-inter);
+  line-height: normal;
+}
+button,
+input {
+  font: inherit;
+}

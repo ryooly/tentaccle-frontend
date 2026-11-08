@@ -1,0 +1,682 @@
+/* Chain detail screen — a single, unified page background with no boxed sub-sections.
+   The chain identity (back button, logo, name, copyable address) sits flat on that
+   background so the whole view reads as one surface. */
+.page {
+  position: relative;
+  overflow-x: hidden;
+  min-height: var(--height-100vh);
+  background: var(--gradient-page);
+  color: var(--color-darkslateblue);
+  font-family: var(--font-inter);
+}
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-24);
+  width: min(100% - var(--shell-gutter) * 2, 900px);
+  margin: 0 auto;
+  padding: var(--padding-32) var(--padding-0) var(--padding-48);
+}
+
+/* The one flat row: back button, logo, then name + address stacked. */
+.identity {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-16);
+}
+
+.back {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--height-46);
+  height: var(--height-46);
+  border: var(--border-1);
+  border-radius: var(--br-16);
+  background: var(--color-white);
+  box-shadow: var(--shadow-drop-5);
+  color: var(--color-darkorchid);
+  font-size: var(--fs-20);
+  font-weight: var(--fw-800);
+  line-height: var(--lh-26);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform var(--duration-hover) ease,
+    box-shadow var(--duration-hover) ease,
+    border-color var(--duration-hover) ease;
+}
+
+.back:hover {
+  transform: translate(-2px, -2px);
+  border-color: var(--color-darkorchid);
+  box-shadow: var(--shadow-drop-hover);
+}
+
+.back:active {
+  transform: translate(-1px, 1px);
+  box-shadow: var(--shadow-drop-5);
+  transition-duration: 0.06s;
+}
+
+.back:focus-visible {
+  outline: var(--border-focus);
+  outline-offset: 3px;
+}
+
+.icon {
+  flex: none;
+  width: var(--width-48);
+  height: var(--height-48);
+  border-radius: var(--br-14);
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-6);
+  min-width: 0;
+}
+
+.name {
+  margin: var(--margin-0);
+  font-size: var(--fs-32);
+  font-weight: var(--fw-800);
+  line-height: var(--lh-40);
+}
+
+/* The "#" prefixed chain ID, styled as a compact clickable copy chip. */
+.address {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-6);
+  padding: var(--padding-4) var(--padding-10);
+  border: var(--border-1);
+  border-radius: var(--br-26);
+  background: var(--color-lavender-200);
+  color: var(--color-slategray-300);
+  font-family: "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+  font-size: var(--fs-12);
+  font-weight: var(--fw-700);
+  line-height: var(--lh-16);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition:
+    background var(--duration-hover) ease,
+    border-color var(--duration-hover) ease,
+    color var(--duration-hover) ease;
+}
+
+.address:hover {
+  background: var(--color-lavender-300);
+  border-color: var(--color-darkorchid);
+  color: var(--color-darkslateblue);
+}
+
+.address:focus-visible {
+  outline: var(--border-focus);
+  outline-offset: 2px;
+}
+
+.addressHash {
+  color: var(--color-darkorchid);
+  font-weight: var(--fw-800);
+}
+
+.addressText {
+  letter-spacing: 0.01em;
+}
+
+.copyHint {
+  flex: none;
+  color: var(--color-darkorchid);
+  font-size: var(--fs-13);
+  line-height: var(--lh-16);
+}
+
+.status {
+  min-height: var(--lh-20);
+  margin: var(--margin-0);
+  color: var(--color-darkorchid);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-700);
+  line-height: var(--lh-20);
+}
+
+/* Three equal boxes laid out in a single row beneath the header. */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap-16);
+}
+
+.tile {
+  --tone-shadow: var(--color-thistle-100);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-6);
+  padding: var(--padding-20);
+  border: var(--border-1);
+  border-radius: var(--br-20);
+  background: var(--color-white);
+  box-shadow: var(--shadow-drop-5);
+  color: var(--color-darkslateblue);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  appearance: none;
+  -webkit-appearance: none;
+  transition:
+    transform var(--duration-hover) ease,
+    box-shadow var(--duration-hover) ease,
+    border-color var(--duration-hover) ease;
+}
+
+.tile:hover {
+  transform: translateY(-6px) scale(1.03);
+  border-color: var(--color-darkorchid);
+  box-shadow: 0px 12px 0px var(--tone-shadow);
+}
+
+.tile:focus-visible {
+  outline: var(--border-focus);
+  outline-offset: 3px;
+}
+
+.tile:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0px 2px 0px var(--tone-shadow);
+  transition-duration: 0.06s;
+}
+
+.tileTitle {
+  font-size: var(--fs-13);
+  font-weight: var(--fw-800);
+  letter-spacing: 0.08em;
+  line-height: var(--lh-18);
+  text-transform: uppercase;
+  color: var(--color-slategray-100);
+}
+
+.tileValue {
+  min-height: var(--lh-29);
+  font-size: var(--fs-22);
+  font-weight: var(--fw-800);
+  line-height: var(--lh-29);
+  color: var(--color-darkslateblue);
+  letter-spacing: -0.02em;
+}
+
+.tileValue[data-empty="true"] {
+  color: var(--color-thistle-200);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    transition: none;
+  }
+
+  .tile:hover,
+  .tile:active {
+    transform: none;
+  }
+}
+
+/* The large chart box — same light, layered surface language as the tiles and
+   chain cards (soft white-to-lavender tint, thin border, flat drop shadow), so it
+   belongs to the design system instead of clashing with it. */
+.chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-16);
+  padding: var(--padding-24);
+  border: var(--border-1);
+  border-radius: var(--br-24);
+  background: linear-gradient(180deg, var(--color-white) 0%, var(--color-ghostwhite) 100%);
+  box-shadow: var(--shadow-drop-5);
+  color: var(--color-darkslateblue);
+  /* Break the chart out wider than the 900px column, centered on the viewport and
+     bounded by the page gutter so it never causes horizontal overflow. */
+  align-self: center;
+  width: min(100vw - var(--shell-gutter) * 2, 1440px);
+}
+
+.chartHeader {
+  display: flex;
+  flex-direction: column;
+}
+
+.chartTitle {
+  margin: var(--margin-0);
+  font-size: var(--fs-20);
+  font-weight: var(--fw-800);
+  line-height: var(--lh-26);
+}
+
+/* TradingView-style board: toolbar header, plot pane, vertical cutter, price column. */
+.board {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 320px;
+  max-width: 100%;
+  height: 360px;
+  min-height: 220px;
+  border: var(--border-1);
+  border-radius: var(--br-16);
+  background: linear-gradient(180deg, var(--color-lavender-200) 0%, var(--color-lavender-100) 100%);
+  overflow: hidden;
+  resize: both;
+}
+
+/* Thin header strip inside the board — timeframes, range, zoom tools. */
+.boardToolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-12);
+  flex: 0 0 auto;
+  padding: var(--padding-4) var(--padding-10);
+  border-bottom: 1px solid rgba(133, 72, 213, 0.16);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.boardBody {
+  display: flex;
+  align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.rangeOptions {
+  display: inline-flex;
+  gap: var(--gap-6);
+}
+
+.rangeOption {
+  min-width: 36px;
+  height: 28px;
+  padding: 0 var(--padding-10);
+  border: var(--border-1);
+  border-radius: 999px;
+  background: var(--color-white);
+  color: var(--color-slategray-300);
+  font-family: var(--font-inter);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-700);
+  line-height: var(--lh-16);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition:
+    color var(--duration-hover) ease,
+    background var(--duration-hover) ease,
+    border-color var(--duration-hover) ease,
+    box-shadow var(--duration-hover) ease,
+    transform var(--duration-hover) ease;
+}
+
+.rangeOption:hover {
+  border-color: var(--color-darkorchid);
+  color: var(--color-darkorchid);
+}
+
+.rangeOption:focus-visible {
+  outline: var(--border-focus);
+  outline-offset: 2px;
+}
+
+.rangeOption:active {
+  transform: translateY(1px) scale(0.98);
+  transition-duration: 0.06s;
+}
+
+.rangeOption[data-active="true"] {
+  border-color: var(--color-darkorchid);
+  background: var(--color-darkorchid);
+  color: var(--color-white);
+  box-shadow: 0 3px 0 var(--color-thistle-200);
+}
+
+.plotCanvas {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.plotCanvas[data-dragging="true"] {
+  cursor: grabbing;
+}
+
+/* Drag handle between the plot and the number column. */
+.cutter {
+  flex: 0 0 6px;
+  position: relative;
+  z-index: 2;
+  margin: 0 -1px;
+  cursor: col-resize;
+  touch-action: none;
+  background: transparent;
+}
+
+.cutter::before {
+  content: "";
+  position: absolute;
+  inset: 0 2px;
+  background: rgba(133, 72, 213, 0.22);
+  border-radius: 2px;
+  transition: background var(--duration-hover) ease, inset var(--duration-hover) ease;
+}
+
+.cutter:hover::before,
+.cutter:focus-visible::before {
+  inset: 0 1px;
+  background: var(--color-darkorchid);
+}
+
+.cutter:focus-visible {
+  outline: none;
+}
+
+.chartControls {
+  display: inline-flex;
+  gap: var(--gap-6);
+  margin-left: auto;
+}
+
+.chartControl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: var(--padding-0);
+  border: var(--border-1);
+  border-radius: 50%;
+  background: var(--color-white);
+  box-shadow: 0 3px 0 var(--color-thistle-100);
+  color: var(--color-darkslateblue);
+  font-family: var(--font-inter);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-700);
+  line-height: var(--lh-16);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition:
+    color var(--duration-hover) ease,
+    border-color var(--duration-hover) ease,
+    transform var(--duration-hover) ease,
+    box-shadow var(--duration-hover) ease;
+}
+
+.chartControl:hover {
+  border-color: var(--color-darkorchid);
+  color: var(--color-darkorchid);
+  transform: translateY(-1px);
+}
+
+.chartControl:active {
+  transform: translateY(1px) scale(0.96);
+  transition-duration: 0.06s;
+}
+
+.chartControl:focus-visible {
+  outline: var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* Sliding stage inside the plot. Re-keyed per timeframe so the slide-in animation
+   replays, entering from the side the newly selected range sits on. */
+.plotStage {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.plotStage[data-dir="right"] {
+  animation: slideFromRight 0.34s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.plotStage[data-dir="left"] {
+  animation: slideFromLeft 0.34s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes slideFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0.35;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideFromLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0.35;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.chartSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.grid line {
+  stroke: rgba(133, 72, 213, 0.12);
+  stroke-width: 1;
+}
+
+/* Backend-driven connecting points/lines render here; empty until data arrives. */
+.points {
+  fill: var(--color-darkorchid);
+  stroke: var(--color-darkorchid);
+}
+
+.chartEmpty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: var(--margin-0);
+  padding: var(--padding-20);
+  text-align: center;
+  color: var(--color-lightslategray-200);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-500);
+  line-height: var(--lh-20);
+}
+
+/* Right-hand number / price scale — width driven by the cutter drag. */
+.axis {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: 56px;
+  max-width: 200px;
+  padding: var(--padding-10) var(--padding-12);
+  border-left: 1px dashed rgba(133, 72, 213, 0.24);
+  background: var(--color-white);
+  overflow: hidden;
+}
+
+.axisTicks {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.axisTick {
+  color: var(--color-slategray-100);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--fs-11);
+  line-height: var(--lh-16);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Placeholder tick mark shown until the backend supplies real scale values. */
+.axisTickEmpty {
+  height: 1px;
+  border-radius: 1px;
+  background: rgba(133, 72, 213, 0.16);
+}
+
+.axisLast {
+  position: absolute;
+  right: var(--padding-12);
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  padding: var(--padding-4) var(--padding-10);
+  border-radius: var(--br-14);
+  background: var(--color-darkorchid);
+  color: var(--color-white);
+  box-shadow: var(--shadow-drop-5);
+}
+
+.axisLastValue {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--fs-13);
+  font-weight: var(--fw-700);
+  line-height: var(--lh-16);
+  font-variant-numeric: tabular-nums;
+}
+
+.axisLastTime {
+  font-size: var(--fs-11);
+  line-height: var(--lh-16);
+  opacity: 0.85;
+}
+
+.axisVolume {
+  position: absolute;
+  right: var(--padding-12);
+  bottom: var(--padding-4);
+  color: var(--color-darkslateblue);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--fs-12);
+  font-weight: var(--fw-700);
+  line-height: var(--lh-16);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Compact timeframe switch sitting in the board toolbar. */
+.timeframes {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 3px;
+  border: var(--border-1);
+  border-radius: var(--br-20);
+  background: var(--color-lavender-200);
+}
+
+/* The moving knob: one slot wide, translated by --i slots with a tactile overshoot. */
+.thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / 3);
+  border-radius: var(--br-16);
+  background: var(--color-white);
+  box-shadow: 0 3px 0 var(--color-thistle-100);
+  transform: translateX(calc(var(--i, 0) * 100%));
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 0;
+}
+
+.timeframe {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 26px;
+  padding: 0;
+  border: var(--border-none);
+  border-radius: var(--br-16);
+  background: transparent;
+  color: var(--color-slategray-300);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: color var(--duration-hover) ease;
+}
+
+.timeframe svg {
+  width: 16px;
+  height: 16px;
+}
+
+.timeframe:hover {
+  color: var(--color-darkorchid);
+}
+
+.timeframe:focus-visible {
+  outline: var(--border-focus);
+  outline-offset: 2px;
+}
+
+.timeframe[data-active="true"] {
+  color: var(--color-darkorchid);
+}
+
+.notFound {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-12);
+}
+
+.notFoundHeading {
+  margin: var(--margin-0);
+  font-size: var(--fs-22);
+  font-weight: var(--fw-800);
+  line-height: var(--lh-29);
+}
+
+.notFoundBody {
+  margin: var(--margin-0);
+  color: var(--color-slategray-100);
+  font-size: var(--fs-14);
+  line-height: var(--lh-20);
+}
+
+@media (max-width: 825px) {
+  .shell {
+    padding: var(--padding-24) var(--padding-16) var(--padding-32);
+  }
+  .name {
+    font-size: var(--fs-23);
+    line-height: var(--lh-30);
+  }
+  .tiles {
+    grid-template-columns: 1fr;
+  }
+}
