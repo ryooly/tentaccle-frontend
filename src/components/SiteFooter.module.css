@@ -121,6 +121,19 @@
   border-radius: 4px;
 }
 
+.networksBlock {
+  width: 100%;
+}
+
+.networksGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap-24);
+  margin: var(--gap-12) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
 .bar {
   display: flex;
   align-items: center;

@@ -123,48 +123,36 @@ export default function SiteFooter() {
           </nav>
         ))}
 
-        <nav className={styles.column} aria-label="Networks">
+        <nav className={styles.networksBlock} aria-label="Networks">
           <h2 className={styles.columnTitle}>Networks</h2>
-          <div className={styles.networksRow}>
-            <ul className={styles.links}>
-              {explorerChains.slice(0, 4).map((chain) => (
-                <li key={chain.name}>
-                  <Link
-                    className={styles.networkLink}
-                    to={`/chain/${chainSlug(chain.name)}`}
-                  >
-                    <img
-                      className={styles.chainIcon}
-                      src={chain.iconSrc}
-                      alt=""
-                      width={22}
-                      height={22}
-                    />
-                    <span>{chain.name}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <ul className={styles.links}>
-              {explorerChains.slice(4).map((chain) => (
-                <li key={chain.name}>
-                  <Link
-                    className={styles.networkLink}
-                    to={`/chain/${chainSlug(chain.name)}`}
-                  >
-                    <img
-                      className={styles.chainIcon}
-                      src={chain.iconSrc}
-                      alt=""
-                      width={22}
-                      height={22}
-                    />
-                    <span>{chain.name}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul className={styles.networksGrid}>
+            {[
+              explorerChains[0],
+              explorerChains[4],
+              explorerChains[1],
+              explorerChains[5],
+              explorerChains[2],
+              explorerChains[6],
+              explorerChains[3],
+              explorerChains[7],
+            ].map((chain) => (
+              <li key={chain.name}>
+                <Link
+                  className={styles.networkLink}
+                  to={`/chain/${chainSlug(chain.name)}`}
+                >
+                  <img
+                    className={styles.chainIcon}
+                    src={chain.iconSrc}
+                    alt=""
+                    width={22}
+                    height={22}
+                  />
+                  <span>{chain.name}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </nav>
       </div>
 
