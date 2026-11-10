@@ -125,25 +125,46 @@ export default function SiteFooter() {
 
         <nav className={styles.column} aria-label="Networks">
           <h2 className={styles.columnTitle}>Networks</h2>
-          <ul className={styles.links}>
-            {explorerChains.map((chain) => (
-              <li key={chain.name}>
-                <Link
-                  className={styles.networkLink}
-                  to={`/chain/${chainSlug(chain.name)}`}
-                >
-                  <img
-                    className={styles.chainIcon}
-                    src={chain.iconSrc}
-                    alt=""
-                    width={22}
-                    height={22}
-                  />
-                  <span>{chain.name}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <div className={styles.networksRow}>
+            <ul className={styles.links}>
+              {explorerChains.slice(0, 4).map((chain) => (
+                <li key={chain.name}>
+                  <Link
+                    className={styles.networkLink}
+                    to={`/chain/${chainSlug(chain.name)}`}
+                  >
+                    <img
+                      className={styles.chainIcon}
+                      src={chain.iconSrc}
+                      alt=""
+                      width={22}
+                      height={22}
+                    />
+                    <span>{chain.name}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <ul className={styles.links}>
+              {explorerChains.slice(4).map((chain) => (
+                <li key={chain.name}>
+                  <Link
+                    className={styles.networkLink}
+                    to={`/chain/${chainSlug(chain.name)}`}
+                  >
+                    <img
+                      className={styles.chainIcon}
+                      src={chain.iconSrc}
+                      alt=""
+                      width={22}
+                      height={22}
+                    />
+                    <span>{chain.name}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </nav>
       </div>
 

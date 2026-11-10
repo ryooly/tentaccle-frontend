@@ -44,3 +44,42 @@ export function undulateParams(tip: number): TentacleMotion {
     delay: `${delayS.toFixed(2)}s`,
   };
 }
+
+/**
+ * Glides the viewport to an element with the same easeInOutCubic curve the
+ * search bar uses, then focuses the element on arrival.
+ */
+export function scrollToElement(element: HTMLElement): void {
+  let rafId: number | null = null;
+  const start = window.scrollY;
+  const rect = element.getBoundingClientRect();
+  const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  const target = Math.max(
+    0,
+    Math.min(maxY, start + rect.top + rect.height / 2 - window.innerHeight / 2),
+  );
+  const delta = target - start;
+  const focus = () => element.focus({ preventScroll: true });
+  if (
+    Math.abs(delta) < 8 ||
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  ) {
+    window.scrollTo({ top: target, behavior: "instant" });
+    focus();
+    return;
+  }
+  const duration = Math.min(1200, Math.max(550, Math.abs(delta) * 0.8));
+  const t0 = performance.now();
+  const step = (now: number) => {
+    const p = Math.min(1, (now - t0) / duration);
+    const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+    window.scrollTo({ top: start + delta * e, behavior: "instant" });
+    if (p < 1) {
+      rafId = requestAnimationFrame(step);
+    } else {
+      rafId = null;
+      focus();
+    }
+  };
+  rafId = requestAnimationFrame(step);
+}

@@ -66,6 +66,13 @@
   list-style: none;
 }
 
+.networksRow {
+  display: flex;
+  gap: var(--padding-32);
+  flex-wrap: wrap;
+  margin-top: var(--gap-12);
+}
+
 .link,
 .networkLink {
   color: var(--color-slategray-100);

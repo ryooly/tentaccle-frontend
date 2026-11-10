@@ -3,14 +3,13 @@ import { useNavigate } from "react-router-dom";
 import {
   chainSlug,
   explorerCopy,
-  type DiscoveryItem,
   type ExplorerCategory,
   type ExplorerChain,
 } from "../content";
-import DiscoveryCard from "../components/DiscoveryCard";
 import ExplorerHero from "../components/ExplorerHero";
 import NetworkBackdrop from "../components/NetworkBackdrop";
 import SiteFooter from "../components/SiteFooter";
+import { scrollToElement } from "../tentacleMotion";
 import styles from "./MultichainExplorer.module.css";
 
 interface MultichainExplorerProps {}
@@ -27,10 +26,6 @@ export default function MultichainExplorer(_: MultichainExplorerProps) {
     (_: ExplorerCategory) => undefined,
     [],
   );
-  // Discovery tiles jump back to search — same idea as diving from the hero field.
-  const handleDiscoverySelect = useCallback((item: DiscoveryItem) => {
-    setSearchJump({ query: item.title, nonce: Date.now() });
-  }, []);
   // Tapping a chain card routes to that chain's dedicated detail page (with its cart).
   const handleChainSelect = useCallback(
     (chain: ExplorerChain) => navigate(`/chain/${chainSlug(chain.name)}`),
@@ -49,17 +44,14 @@ export default function MultichainExplorer(_: MultichainExplorerProps) {
       <ExplorerHero
         onCategorySelect={handleCategorySelect}
         onChainSelect={handleChainSelect}
+        onExplore={() => {
+          const map = document.getElementById("map");
+          if (map) {
+            scrollToElement(map);
+          }
+        }}
         searchJump={searchJump}
       />
-      <section className={styles.discovery} id="discover" aria-label={explorerCopy.product}>
-        {explorerCopy.discovery.map((item) => (
-          <DiscoveryCard
-            key={item.title}
-            {...item}
-            onSelect={() => handleDiscoverySelect(item)}
-          />
-        ))}
-      </section>
       <SiteFooter />
     </main>
   );

@@ -3,7 +3,7 @@ export const explorerCopy = {
   product: "MULTICHAIN EXPLORER",
   explore: "Explore",
   learn: "Learn",
-  connectWallet: "Connect wallet",
+  connectWallet: "About Devs",
   heading: "Search the pulse of every chain",
   heroEyebrow: "Multichain Gas Explorer",
   headingLead: "Search the",
@@ -36,16 +36,7 @@ export const explorerCopy = {
           { label: "Discover", to: "/#discover" },
         ],
       },
-      {
-        title: "Explore",
-        links: [
-          { label: "Wallets", to: "/#discover" },
-          { label: "Transactions", to: "/#discover" },
-          { label: "Smart contracts", to: "/#discover" },
-          { label: "NFTs", to: "/#discover" },
-        ],
-      },
-    ],
+      ],
     // Paste profile URLs here. An empty href still shows the button, ready for a link.
     socials: [
       { id: "x", label: "X", href: "" },
@@ -60,12 +51,7 @@ export const explorerCopy = {
     { title: "Bridges", subtitle: "Explore across chains", tone: "bridges" },
     { title: "Docs", subtitle: "Read the documentation", tone: "docs" },
   ],
-  discovery: [
-    { title: "Wallets", subtitle: "Find an address" },
-    { title: "Transactions", subtitle: "Follow the activity" },
-    { title: "Smart contracts", subtitle: "Look under the hood" },
-    { title: "NFTs", subtitle: "Discover collections" },
-  ],
+  discovery: [],
   chainPage: {
     back: "Back to network map",
     copyAddress: "Copy address",

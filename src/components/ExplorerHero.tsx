@@ -13,7 +13,7 @@ import {
 } from "../content";
 import ChainCard from "./ChainCard";
 import TentacleMap from "./TentacleMap";
-import { undulateParams } from "../tentacleMotion";
+import { undulateParams, scrollToElement } from "../tentacleMotion";
 import styles from "./ExplorerHero.module.css";
 
 export interface ExplorerHeroProps {
@@ -48,7 +48,6 @@ export default function ExplorerHero({
   // --- Search-and-jump: submitting simply directs the user to the matching chain card. ---
   const inputRef = useRef<HTMLInputElement>(null);
   const fieldRef = useRef<HTMLFormElement>(null);
-  const scrollRafRef = useRef<number | null>(null);
 
   // Discovery cards (and similar) can hand a query up here — seed + focus the field.
   useEffect(() => {
@@ -66,56 +65,57 @@ export default function ExplorerHero({
     });
   }, [searchJump, onSearchChange]);
 
-  /** Glides the viewport down to the card on an eased curve instead of the browser's
-      default smooth snap, then focuses it on arrival so the keyboard is handed over. */
+  /** Glides the viewport down to the card on the shared eased curve, then focuses it. */
   const scrollToCard = (card: HTMLElement) => {
-    if (scrollRafRef.current !== null) cancelAnimationFrame(scrollRafRef.current);
-    const start = window.scrollY;
-    const rect = card.getBoundingClientRect();
-    const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-    const target = Math.max(
-      0,
-      Math.min(maxY, start + rect.top + rect.height / 2 - window.innerHeight / 2),
-    );
-    const delta = target - start;
-    // preventScroll: keep the native instant jump-on-focus out of the picture.
-    const focus = () => card.focus({ preventScroll: true });
-    if (
-      Math.abs(delta) < 8 ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      window.scrollTo({ top: target, behavior: "instant" });
-      focus();
-      return;
-    }
-    const duration = Math.min(1200, Math.max(550, Math.abs(delta) * 0.8));
-    const t0 = performance.now();
-    const step = (now: number) => {
-      const p = Math.min(1, (now - t0) / duration);
-      // easeInOutCubic: eases out of the search area and settles softly on the card.
-      const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
-      window.scrollTo({ top: start + delta * e, behavior: "instant" });
-      if (p < 1) {
-        scrollRafRef.current = requestAnimationFrame(step);
-      } else {
-        scrollRafRef.current = null;
-        focus();
-      }
-    };
-    scrollRafRef.current = requestAnimationFrame(step);
+    scrollToElement(card);
   };
 
   const handleLaunch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const query = searchValue.trim().toLowerCase();
     if (!query) return;
-    const chain = explorerChains.find((item) => {
-      const name = item.name.toLowerCase();
-      return (
-        name.includes(query) ||
-        name.split(" ").some((word) => query.includes(word))
-      );
-    });
+
+    /** Scores how well a chain name matches the query (higher = better). */
+    const score = (name: string): number => {
+      const lName = name.toLowerCase();
+      if (lName === query) return 100;
+      if (lName.includes(query)) return 90;
+      if (query.includes(lName)) return 85;
+
+      // Bidirectional word overlap.
+      const nameWords = lName.split(/\s+/);
+      const queryWords = query.split(/\s+/);
+      let common = 0;
+      for (const qw of queryWords) {
+        if (nameWords.some((nw) => nw.includes(qw) || qw.includes(nw))) {
+          common += 1;
+        }
+      }
+      if (common > 0) return 70 + common * 5;
+
+      // Character overlap as a last resort (catches "binance" -> "BNB Chain").
+      const nameChars = new Set(lName.replace(/\s/g, ""));
+      const queryChars = Array.from(new Set(query.replace(/\s/g, "")));
+      let shared = 0;
+      for (let i = 0; i < queryChars.length; i += 1) {
+        if (nameChars.has(queryChars[i])) shared += 1;
+      }
+      if (shared > 0) return 50 + shared;
+
+      return 0;
+    };
+
+    let best: (typeof explorerChains)[number] | null = null;
+    let bestScore = 0;
+    for (const chain of explorerChains) {
+      const s = score(chain.name);
+      if (s > bestScore) {
+        bestScore = s;
+        best = chain;
+      }
+    }
+
+    const chain = best;
     const card = chain
       ? document.querySelector<HTMLElement>(`[data-chain="${chain.name}"]`)
       : null;
@@ -140,10 +140,12 @@ export default function ExplorerHero({
             {explorerCopy.learn}
           </button>
           <button
-            className={styles.walletButton}
+            className={`${styles.walletButton} ${styles.aboutDevsButton}`}
             type="button"
             onClick={onConnectWallet}
+            aria-label="About the developers"
           >
+            <span className={styles.devsBadge} aria-hidden="true">✦</span>
             {explorerCopy.connectWallet}
           </button>
         </nav>
