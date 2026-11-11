@@ -72,8 +72,8 @@ export const explorerCopy = {
       // Options shown in the white selector bar, varying by the active timeframe.
       rangeOptions: {
         Hourly: ["24", "48", "72"],
-        Daily: ["1", "3", "5"],
-        Weekly: ["1", "2", "3"],
+        Daily: ["1", "2", "3"],
+        Weekly: ["3", "6", "9"],
       },
       // Right-side value scale. Left empty on purpose — tick labels, the highlighted
       // last value, and the volume are all supplied by the backend in production.
