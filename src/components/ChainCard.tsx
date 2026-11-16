@@ -12,6 +12,8 @@ export interface ChainCardProps {
   onHover?: (hovered: boolean) => void;
   className?: string;
   style?: CSSProperties;
+  /** When true, the fee value is live data from the chart database; false = static fallback. */
+  isLive?: boolean;
 }
 
 /** A clickable blockchain entry point, showing its live gas, pinned to a tentacle tip. */
@@ -24,6 +26,7 @@ export default function ChainCard({
   onHover,
   className = "",
   style,
+  isLive = false,
 }: ChainCardProps) {
   const cardClassName = [styles.card, className].filter(Boolean).join(" ");
   const label = `${name} — ${explorerCopy.gasPrefix} ${gas}`;
@@ -31,8 +34,9 @@ export default function ChainCard({
     <>
       <img className={styles.icon} src={iconSrc} alt="" />
       <strong className={styles.name}>{name}</strong>
-      <span className={styles.gas}>
+      <span className={[styles.gas, isLive ? styles.gasLive : null].filter(Boolean).join(" ")}>
         {explorerCopy.gasPrefix} {gas}
+        {isLive && <span className={styles.liveDot} aria-hidden="true">•</span>}
       </span>
       <span className={styles.cta} aria-hidden="true">
         ↗

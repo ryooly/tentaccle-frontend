@@ -7,4 +7,13 @@ export default defineConfig({
     outDir: "build",
   },
   plugins: [react()],
+  server: {
+    host: true,
+    proxy: {
+      "/charts": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+      },
+    },
+  },
 });

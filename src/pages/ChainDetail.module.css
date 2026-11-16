@@ -14,7 +14,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--gap-24);
-  width: min(100% - var(--shell-gutter) * 2, 900px);
+  width: var(--shell-width);
   margin: 0 auto;
   padding: var(--padding-32) var(--padding-0) var(--padding-48);
 }
@@ -23,7 +23,9 @@
 .identity {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--gap-16);
+  min-width: 0;
 }
 
 .back {
@@ -150,12 +152,13 @@
 /* Three equal boxes laid out in a single row beneath the header. */
 .tiles {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--gap-16);
 }
 
 .tile {
   --tone-shadow: var(--color-thistle-100);
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -163,7 +166,7 @@
   padding: var(--padding-20);
   border: var(--border-1);
   border-radius: var(--br-20);
-  background: var(--color-white);
+  background: linear-gradient(180deg, var(--color-white) 0%, var(--color-ghostwhite) 100%);
   box-shadow: var(--shadow-drop-5);
   color: var(--color-darkslateblue);
   cursor: pointer;
@@ -171,16 +174,35 @@
   text-align: left;
   appearance: none;
   -webkit-appearance: none;
+  overflow: hidden;
   transition:
-    transform var(--duration-hover) ease,
-    box-shadow var(--duration-hover) ease,
-    border-color var(--duration-hover) ease;
+    transform 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 0.22s ease,
+    border-color 0.22s ease,
+    background 0.22s ease;
+}
+
+.tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(120deg, transparent 0%, rgba(133, 72, 213, 0.06) 50%, transparent 100%);
+  opacity: 0;
+  transform: translateX(-30%);
+  transition: opacity 0.25s ease, transform 0.5s ease;
+  pointer-events: none;
 }
 
 .tile:hover {
-  transform: translateY(-6px) scale(1.03);
+  transform: translateY(-4px);
   border-color: var(--color-darkorchid);
-  box-shadow: 0px 12px 0px var(--tone-shadow);
+  box-shadow: 0px 10px 0px var(--tone-shadow);
+}
+
+.tile:hover::after {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .tile:focus-visible {
@@ -189,7 +211,7 @@
 }
 
 .tile:active {
-  transform: translateY(1px) scale(0.98);
+  transform: translateY(1px) scale(0.99);
   box-shadow: 0px 2px 0px var(--tone-shadow);
   transition-duration: 0.06s;
 }
@@ -210,15 +232,58 @@
   line-height: var(--lh-29);
   color: var(--color-darkslateblue);
   letter-spacing: -0.02em;
+  transition: color 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
 }
 
 .tileValue[data-empty="true"] {
   color: var(--color-thistle-200);
 }
 
+.tileValue[data-loading="true"] {
+  display: inline-block;
+  min-width: 72px;
+  border-radius: 999px;
+  color: transparent;
+  background: linear-gradient(
+    90deg,
+    rgba(133, 72, 213, 0.1) 0%,
+    rgba(133, 72, 213, 0.22) 50%,
+    rgba(133, 72, 213, 0.1) 100%
+  );
+  background-size: 220% 100%;
+  animation: tileShimmer 1.2s ease-in-out infinite;
+}
+
+.tileValue[data-ready="true"] {
+  animation: tileValueIn 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes tileShimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes tileValueIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .tile {
+  .tile,
+  .tile::after,
+  .tileValue {
     transition: none;
+    animation: none;
   }
 
   .tile:hover,
@@ -234,21 +299,23 @@
   display: flex;
   flex-direction: column;
   gap: var(--gap-16);
-  padding: var(--padding-24);
+  padding: var(--padding-24) 0 0;
   border: var(--border-1);
   border-radius: var(--br-24);
   background: linear-gradient(180deg, var(--color-white) 0%, var(--color-ghostwhite) 100%);
   box-shadow: var(--shadow-drop-5);
   color: var(--color-darkslateblue);
-  /* Break the chart out wider than the 900px column, centered on the viewport and
-     bounded by the page gutter so it never causes horizontal overflow. */
-  align-self: center;
-  width: min(100vw - var(--shell-gutter) * 2, 1440px);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
 }
 
 .chartHeader {
   display: flex;
   flex-direction: column;
+  padding: 0 var(--padding-24);
 }
 
 .chartTitle {
@@ -263,21 +330,21 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-width: 320px;
+  min-width: 0;
   max-width: 100%;
-  height: 360px;
-  min-height: 220px;
-  border: var(--border-1);
-  border-radius: var(--br-16);
+  height: clamp(280px, 50vh, 480px);
+  min-height: 280px;
+  border: 0;
+  border-radius: 0;
   background: linear-gradient(180deg, var(--color-lavender-200) 0%, var(--color-lavender-100) 100%);
   overflow: hidden;
-  resize: both;
 }
 
 /* Thin header strip inside the board — timeframes, range, zoom tools. */
 .boardToolbar {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--gap-12);
   flex: 0 0 auto;
   padding: var(--padding-4) var(--padding-10);
@@ -360,10 +427,11 @@
 
 /* Drag handle between the plot and the number column. */
 .cutter {
-  flex: 0 0 6px;
+  flex: 0 0 0;
+  width: 0;
   position: relative;
   z-index: 2;
-  margin: 0 -1px;
+  margin: 0;
   cursor: col-resize;
   touch-action: none;
   background: transparent;
@@ -372,15 +440,17 @@
 .cutter::before {
   content: "";
   position: absolute;
-  inset: 0 2px;
-  background: rgba(133, 72, 213, 0.22);
+  top: 0;
+  bottom: 0;
+  left: -3px;
+  width: 6px;
+  background: transparent;
   border-radius: 2px;
-  transition: background var(--duration-hover) ease, inset var(--duration-hover) ease;
+  transition: background var(--duration-hover) ease;
 }
 
 .cutter:hover::before,
 .cutter:focus-visible::before {
-  inset: 0 1px;
   background: var(--color-darkorchid);
 }
 
@@ -436,6 +506,17 @@
   outline-offset: 2px;
 }
 
+/* Zoom percentage shown beside the +/- buttons — styled like other chart numbers. */
+.zoomLevel {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--fs-12);
+  font-weight: var(--fw-700);
+  line-height: var(--lh-16);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-slategray-100);
+  white-space: nowrap;
+}
+
 /* Sliding stage inside the plot. Re-keyed per timeframe so the slide-in animation
    replays, entering from the side the newly selected range sits on. */
 .plotStage {
@@ -485,12 +566,36 @@
 .grid line {
   stroke: rgba(133, 72, 213, 0.12);
   stroke-width: 1;
+  vector-effect: non-scaling-stroke;
 }
 
-/* Backend-driven connecting points/lines render here; empty until data arrives. */
+/* Backend-driven connecting points/lines render here. */
 .points {
   fill: var(--color-darkorchid);
+  stroke: var(--color-white);
+  stroke-width: 1.5;
+}
+
+.line {
+  fill: none;
   stroke: var(--color-darkorchid);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.area {
+  fill: url(#feeAreaGradient);
+  stroke: none;
+}
+
+.lastPoint {
+  fill: var(--color-darkorchid);
+  stroke: var(--color-white);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
 }
 
 .chartEmpty {
@@ -512,28 +617,32 @@
 .axis {
   position: relative;
   flex: 0 0 auto;
-  min-width: 56px;
+  min-width: 96px;
   max-width: 200px;
-  padding: var(--padding-10) var(--padding-12);
-  border-left: 1px dashed rgba(133, 72, 213, 0.24);
+  padding: 0 12px 0 0;
+  border-left: 0;
   background: var(--color-white);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .axisTicks {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  position: relative;
   height: 100%;
 }
 
 .axisTick {
+  position: absolute;
+  right: 0;
+  left: 0;
+  transform: translateY(-50%);
   color: var(--color-slategray-100);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: var(--fs-11);
+  font-weight: var(--fw-700);
   line-height: var(--lh-16);
   text-align: right;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 /* Placeholder tick mark shown until the backend supplies real scale values. */
@@ -545,7 +654,9 @@
 
 .axisLast {
   position: absolute;
-  right: var(--padding-12);
+  left: 0;
+  z-index: 2;
+  max-width: 100%;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
@@ -556,6 +667,7 @@
   background: var(--color-darkorchid);
   color: var(--color-white);
   box-shadow: var(--shadow-drop-5);
+  overflow: hidden;
 }
 
 .axisLastValue {
@@ -567,8 +679,13 @@
 }
 
 .axisLastTime {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
   font-size: var(--fs-11);
   line-height: var(--lh-16);
+  text-overflow: ellipsis;
+  white-space: nowrap;
   opacity: 0.85;
 }
 
@@ -668,6 +785,112 @@
   line-height: var(--lh-20);
 }
 
+/* Enhanced chart visuals */
+.line {
+  filter: drop-shadow(0 2px 4px rgba(133, 72, 213, 0.3));
+}
+
+.lastPoint {
+  filter: drop-shadow(0 0 6px rgba(133, 72, 213, 0.6));
+}
+
+/* Interactive data points */
+.point {
+  fill: var(--color-white);
+  stroke: var(--color-darkorchid);
+  stroke-width: 2;
+  cursor: pointer;
+  transition: r 0.15s ease, stroke-width 0.15s ease, fill 0.15s ease, filter 0.15s ease;
+}
+
+.point:hover,
+.point[data-active="true"] {
+  r: 7;
+  stroke-width: 3;
+  fill: var(--color-darkorchid);
+  filter: url(#pointGlow);
+}
+
+.point:focus-visible {
+  outline: var(--border-focus);
+  outline-offset: 3px;
+}
+
+/* Tooltip for point details */
+.tooltip {
+  position: absolute;
+  z-index: 10;
+  pointer-events: none;
+  animation: tooltipIn 0.15s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes tooltipIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tooltipArrow {
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform: translateY(-50%);
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-right: 6px solid var(--color-darkslateblue);
+}
+
+.tooltip[data-side="left"] .tooltipArrow {
+  left: auto;
+  right: -6px;
+  border-right: none;
+  border-left: 6px solid var(--color-darkslateblue);
+}
+
+.tooltipContent {
+  background: var(--color-darkslateblue);
+  color: var(--color-white);
+  padding: var(--padding-12) var(--padding-16);
+  border-radius: var(--br-12);
+  box-shadow: var(--shadow-drop-hover), 0 0 0 1px rgba(133, 72, 213, 0.2);
+  min-width: 180px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-12);
+  line-height: var(--lh-16);
+}
+
+.tooltipRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gap-12);
+  padding: var(--padding-4) 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tooltipRow:last-child {
+  border-bottom: none;
+}
+
+.tooltipLabel {
+  color: var(--color-thistle-200);
+  font-weight: var(--fw-500);
+}
+
+.tooltipValue {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: var(--fw-700);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-white);
+  text-align: right;
+}
+
 @media (max-width: 825px) {
   .shell {
     padding: var(--padding-24) var(--padding-16) var(--padding-32);
@@ -678,5 +901,21 @@
   }
   .tiles {
     grid-template-columns: 1fr;
+  }
+  .board {
+    height: clamp(240px, 45vh, 360px);
+    min-height: 240px;
+  }
+}
+
+@media (min-width: 826px) and (max-width: 1199px) {
+  .board {
+    height: clamp(300px, 50vh, 420px);
+  }
+}
+
+@media (min-width: 1200px) {
+  .board {
+    height: clamp(320px, 55vh, 480px);
   }
 }

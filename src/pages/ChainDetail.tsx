@@ -1,15 +1,42 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { Link, useParams } from "react-router-dom";
-import { chainTileValue, explorerCopy, findChainBySlug } from "../content";
+import {
+  fetchFeeChart,
+  fetchTokenPrice,
+  fetchTransactions24h,
+  fetchValidators24h,
+  type ChainMetricResponse,
+  type ChartTimeframe,
+  type FeeChartPoint,
+  type TokenPriceResponse,
+} from "../api/chainTools";
+import {
+  chainTileValue,
+  emptyChainStats,
+  explorerCopy,
+  findChainBySlug,
+  type ChainTileStats,
+} from "../content";
 import SiteFooter from "../components/SiteFooter";
 import styles from "./ChainDetail.module.css";
+
+type NativeKeyboardEvent = globalThis.KeyboardEvent;
+
+type UiTimeframe = "Hourly" | "Daily" | "Weekly";
+
+const timeframeToApi: Record<UiTimeframe, ChartTimeframe> = {
+  Hourly: "hour",
+  Daily: "day",
+  Weekly: "week",
+};
 
 /** Small line icons for each timeframe, drawn with currentColor so they inherit state. */
 function TimeframeIcon({ range }: { range: string }) {
@@ -25,7 +52,6 @@ function TimeframeIcon({ range }: { range: string }) {
     "aria-hidden": true,
   };
   if (range === "Hourly") {
-    // Clock face + hands.
     return (
       <svg {...common}>
         <circle cx="12" cy="12" r="8" />
@@ -34,7 +60,6 @@ function TimeframeIcon({ range }: { range: string }) {
     );
   }
   if (range === "Daily") {
-    // Sun: a day's cycle.
     return (
       <svg {...common}>
         <circle cx="12" cy="12" r="4" />
@@ -42,7 +67,6 @@ function TimeframeIcon({ range }: { range: string }) {
       </svg>
     );
   }
-  // Weekly: a calendar with week grid.
   return (
     <svg {...common}>
       <rect x="3" y="5" width="18" height="16" rx="2" />
@@ -57,15 +81,114 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
+function formatCompactNumber(value: number): string {
+  return new Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumFractionDigits: value < 1000 ? 2 : 1,
+  }).format(value);
+}
+
+function formatTokenPrice(data: TokenPriceResponse): string {
+  const price = data.price_usdt;
+  const fractionDigits = price >= 1 ? (price >= 100 ? 2 : 4) : 6;
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: fractionDigits,
+  }).format(price);
+}
+
+function formatMetric(data: ChainMetricResponse): string | null {
+  if (data.value == null) return null;
+  if (typeof data.value === "number" && Number.isFinite(data.value)) {
+    return formatCompactNumber(data.value);
+  }
+  if (typeof data.value === "string" && data.value.trim() !== "") {
+    return data.value;
+  }
+  return null;
+}
+
+function formatFeeValue(value: number): string {
+  const abs = Math.abs(value);
+  let maximumFractionDigits = 2;
+  if (abs !== 0 && abs < 0.0001) maximumFractionDigits = 8;
+  else if (abs < 0.01) maximumFractionDigits = 6;
+  else if (abs < 1) maximumFractionDigits = 4;
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits,
+  }).format(value);
+}
+
+function formatChartTime(iso: string, timeframe: UiTimeframe): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  if (timeframe === "Hourly") {
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  }
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: timeframe === "Weekly" ? "numeric" : undefined,
+  }).format(date);
+}
+
+interface ChartPointData {
+  x: number;
+  y: number;
+  value: number;
+  raw: FeeChartPoint;
+  index: number;
+}
+
+interface ChartModel {
+  width: number;
+  height: number;
+  pts: ChartPointData[];
+  visiblePts: ChartPointData[];
+  line: string;
+  area: string;
+  last: ChartPointData;
+  ticks: { value: string; y: number; topPct: number }[];
+  sliceStart: number;
+  sliceEnd: number;
+  lastLabel: {
+    value: string;
+    time: string;
+    topPct: number;
+  };
+}
+
+interface TooltipData {
+  point: ChartPointData;
+  screenX: number;
+  screenY: number;
+}
+
 /** The routed detail screen for a single blockchain, keyed by its slug in the URL. */
 export default function ChainDetail() {
   const { slug = "" } = useParams<{ slug: string }>();
   const chain = findChainBySlug(slug);
+  const [stats, setStats] = useState<ChainTileStats>(emptyChainStats);
+  const [loading, setLoading] = useState({
+    tokenPrice: false,
+    tx24h: false,
+    validators: false,
+  });
+  const [chartPoints, setChartPoints] = useState<FeeChartPoint[]>([]);
+  const [chartLoading, setChartLoading] = useState(false);
+  const [chartError, setChartError] = useState<string | null>(null);
 
   // Copy-to-clipboard for the "#" prefixed address, with brief inline confirmation.
   const [copied, setCopied] = useState(false);
-  // Chart timeframe selector. Switching a range slides the plot in from the side the
-  // new range sits on (later ranges slide in from the right, earlier from the left).
+  // Chart timeframe selector.
   const ranges = explorerCopy.chainPage.chart.timeframes as readonly string[];
   const [timeframe, setTimeframe] = useState<string>(ranges[1]);
   const [slideDir, setSlideDir] = useState<"left" | "right">("right");
@@ -76,10 +199,7 @@ export default function ChainDetail() {
     setSlideDir(to > from ? "right" : "left");
     setTimeframe(next);
   };
-  // Index of the active range drives the sliding thumb position.
   const activeIndex = Math.max(0, ranges.indexOf(timeframe));
-  // Secondary selector: options depend on the active timeframe. Each timeframe keeps
-  // its own chosen value, so switching back restores the previous selection.
   const rangeOptions = explorerCopy.chainPage.chart.rangeOptions as Record<
     string,
     readonly string[]
@@ -94,8 +214,8 @@ export default function ChainDetail() {
   const selectRange = (next: string) =>
     setSelectedRange((prev) => ({ ...prev, [timeframe]: next }));
 
-  // Resizable right-hand price/number column (TradingView-style cutter drag).
-  const [axisWidth, setAxisWidth] = useState(88);
+  // Resizable right-hand price/number column.
+  const [axisWidth, setAxisWidth] = useState(112);
   const axisDrag = useRef<{ startX: number; startWidth: number } | null>(null);
 
   const onCutterDown = (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -106,9 +226,8 @@ export default function ChainDetail() {
   };
   const onCutterMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!axisDrag.current) return;
-    // Dragging left widens the number column; dragging right narrows it.
     const delta = axisDrag.current.startX - e.clientX;
-    setAxisWidth(clamp(axisDrag.current.startWidth + delta, 56, 200));
+    setAxisWidth(clamp(axisDrag.current.startWidth + delta, 96, 200));
   };
   const onCutterUp = (e: ReactPointerEvent<HTMLDivElement>) => {
     axisDrag.current = null;
@@ -117,67 +236,133 @@ export default function ChainDetail() {
     }
   };
 
-  // TradingView-style chart interaction: wheel + pinch zoom, drag to pan on both
-  // axes, double-click (or the reset button) to return to the default viewport.
+  // Viewport-based navigation: zoom = narrower index range, pan = shift window.
+  // Always render at 1× scale; no CSS transform distortion.
   const canvasRef = useRef<HTMLDivElement>(null);
-  const [zoom, setZoom] = useState({ x: 1, y: 1 });
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  // Zoom origin follows the cursor so wheel zoom feels anchored under the pointer.
-  const [origin, setOrigin] = useState({ x: 50, y: 50 });
-  const [dragging, setDragging] = useState(false);
+  const [viewStart, setViewStart] = useState(0);
+  const [viewEnd, setViewEnd] = useState<number | null>(null);
 
-  // Live pointer positions drive two-finger pinch; the drag ref anchors panning.
   const pointers = useRef<Map<number, { x: number; y: number }>>(new Map());
   const drag = useRef<{
     startX: number;
-    startY: number;
-    startOffsetX: number;
-    startOffsetY: number;
+    startViewStart: number;
   } | null>(null);
-  const pinch = useRef<{ startDist: number; startZoom: { x: number; y: number } } | null>(null);
+  const pinch = useRef<{ startDist: number; startStart: number; startEnd: number } | null>(null);
 
+  const [canvasSize, setCanvasSize] = useState({ width: 600, height: 240 });
+
+  // Tooltip state for interactive points.
+  const [tooltip, setTooltip] = useState<TooltipData | null>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+
+  const totalPoints = chartPoints.length;
+  const minViewSize = 2;
+  const maxViewSize = totalPoints;
+
+  const clampView = (start: number, end: number) => {
+    const size = end - start;
+    if (size < minViewSize) {
+      end = start + minViewSize;
+    }
+    if (end > totalPoints) {
+      end = totalPoints;
+      start = Math.max(0, end - minViewSize);
+    }
+    if (start < 0) {
+      start = 0;
+      end = Math.min(totalPoints, start + minViewSize);
+    }
+    return { start, end };
+  };
+
+  // Update canvas size when layout changes + wheel zoom.
   useEffect(() => {
     const el = canvasRef.current;
     if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        setCanvasSize({ width, height });
+      }
+    });
+    ro.observe(el);
+
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      // Anchor the zoom at the cursor position within the canvas.
       const rect = el.getBoundingClientRect();
-      setOrigin({
-        x: clamp(((e.clientX - rect.left) / rect.width) * 100, 0, 100),
-        y: clamp(((e.clientY - rect.top) / rect.height) * 100, 0, 100),
-      });
-      const factor = Math.exp(-e.deltaY * 0.0015);
-      if (e.shiftKey) {
-        setZoom((z) => ({ ...z, y: clamp(z.y * factor, 0.5, 8) }));
-      } else {
-        setZoom((z) => ({ ...z, x: clamp(z.x * factor, 0.5, 12) }));
-      }
+      const currentSize = (viewEnd ?? totalPoints) - viewStart;
+      if (currentSize <= minViewSize && e.deltaY < 0) return;
+      const pxPerPoint = rect.width / Math.max(1, currentSize);
+      const mouseIndex = Math.round((e.clientX - rect.left) / pxPerPoint) + viewStart;
+      const factor = Math.exp(-e.deltaY * 0.002);
+      const newSize = Math.round(currentSize * factor);
+      const clampedSize = Math.max(minViewSize, Math.min(maxViewSize, newSize));
+      let newStart = Math.round(mouseIndex - clampedSize / 2);
+      let newEnd = newStart + clampedSize;
+      const clamped = clampView(newStart, newEnd);
+      setViewStart(clamped.start);
+      setViewEnd(clamped.end);
     };
     el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
-  }, []);
+    return () => {
+      ro.disconnect();
+      el.removeEventListener("wheel", onWheel);
+    };
+  }, [totalPoints, viewStart, viewEnd]);
+
+  const resetView = () => {
+    setViewStart(0);
+    setViewEnd(null);
+  };
+
+  const zoomIn = () => {
+    const end = viewEnd ?? totalPoints;
+    const size = end - viewStart;
+    if (size <= minViewSize) {
+      resetView();
+      return;
+    }
+    const newSize = Math.floor(size / 1.3);
+    const center = viewStart + size / 2;
+    let newStart = Math.round(center - newSize / 2);
+    let newEnd = newStart + newSize;
+    const clamped = clampView(newStart, newEnd);
+    setViewStart(clamped.start);
+    setViewEnd(clamped.end);
+  };
+
+  const zoomOut = () => {
+    const end = viewEnd ?? totalPoints;
+    const size = end - viewStart;
+    if (size >= maxViewSize) {
+      resetView();
+      return;
+    }
+    const newSize = Math.ceil(size * 1.3);
+    const center = viewStart + size / 2;
+    let newStart = Math.round(center - newSize / 2);
+    let newEnd = newStart + newSize;
+    const clamped = clampView(newStart, newEnd);
+    setViewStart(clamped.start);
+    setViewEnd(clamped.end);
+  };
 
   const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     e.currentTarget.setPointerCapture(e.pointerId);
     if (pointers.current.size === 2) {
-      // Second finger down: hand off from panning to a pinch-zoom gesture.
       const [a, b] = Array.from(pointers.current.values());
       pinch.current = {
         startDist: Math.hypot(a.x - b.x, a.y - b.y) || 1,
-        startZoom: { ...zoom },
+        startStart: viewStart,
+        startEnd: viewEnd ?? totalPoints,
       };
       drag.current = null;
-      setDragging(false);
     } else if (pointers.current.size === 1) {
       drag.current = {
         startX: e.clientX,
-        startY: e.clientY,
-        startOffsetX: offset.x,
-        startOffsetY: offset.y,
+        startViewStart: viewStart,
       };
-      setDragging(true);
     }
   };
 
@@ -186,20 +371,28 @@ export default function ChainDetail() {
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
     if (pointers.current.size === 2 && pinch.current) {
-      // Pinch/stretch: scale both axes relative to where the gesture started.
       const [a, b] = Array.from(pointers.current.values());
       const dist = Math.hypot(a.x - b.x, a.y - b.y) || 1;
       const factor = dist / pinch.current.startDist;
-      setZoom({
-        x: clamp(pinch.current.startZoom.x * factor, 0.5, 12),
-        y: clamp(pinch.current.startZoom.y * factor, 0.5, 8),
-      });
+      const startSize = pinch.current.startEnd - pinch.current.startStart;
+      const newSize = Math.round(startSize / factor);
+      const clampedSize = Math.max(minViewSize, Math.min(maxViewSize, newSize));
+      const center = pinch.current.startStart + startSize / 2;
+      let newStart = Math.round(center - clampedSize / 2);
+      let newEnd = newStart + clampedSize;
+      const clamped = clampView(newStart, newEnd);
+      setViewStart(clamped.start);
+      setViewEnd(clamped.end);
     } else if (drag.current) {
-      // Single-pointer drag: pan horizontally and vertically.
-      setOffset({
-        x: drag.current.startOffsetX + (e.clientX - drag.current.startX),
-        y: drag.current.startOffsetY + (e.clientY - drag.current.startY),
-      });
+      const deltaPx = e.clientX - drag.current.startX;
+      const currentSize = (viewEnd ?? totalPoints) - viewStart;
+      const rect = canvasRef.current?.getBoundingClientRect();
+      const pxPerPoint = (rect?.width ?? canvasSize.width) / Math.max(1, currentSize);
+      const deltaIndex = Math.round(-deltaPx / pxPerPoint);
+      const newStart = drag.current.startViewStart + deltaIndex;
+      const clamped = clampView(newStart, newStart + currentSize);
+      setViewStart(clamped.start);
+      setViewEnd(clamped.end);
     }
   };
 
@@ -208,26 +401,212 @@ export default function ChainDetail() {
     if (pointers.current.size < 2) pinch.current = null;
     if (pointers.current.size === 0) {
       drag.current = null;
-      setDragging(false);
     }
     if (e.currentTarget.hasPointerCapture(e.pointerId)) {
       e.currentTarget.releasePointerCapture(e.pointerId);
     }
   };
 
-  const resetView = () => {
-    setZoom({ x: 1, y: 1 });
-    setOffset({ x: 0, y: 0 });
-    setOrigin({ x: 50, y: 50 });
-  };
-  const zoomIn = () =>
-    setZoom((z) => ({ x: clamp(z.x * 1.3, 0.5, 12), y: clamp(z.y * 1.3, 0.5, 8) }));
-  const zoomOut = () =>
-    setZoom((z) => ({ x: clamp(z.x / 1.3, 0.5, 12), y: clamp(z.y / 1.3, 0.5, 8) }));
-  const chartTransform: CSSProperties = {
-    transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom.x}, ${zoom.y})`,
-    transformOrigin: `${origin.x}% ${origin.y}%`,
-  };
+  useEffect(() => {
+    resetView();
+  }, [timeframe, currentRange, chain?.name]);
+
+  useEffect(() => {
+    if (!chain) {
+      setChartPoints([]);
+      setChartLoading(false);
+      setChartError(null);
+      return;
+    }
+
+    let active = true;
+    setChartLoading(true);
+    setChartError(null);
+
+    const tf = timeframeToApi[timeframe as UiTimeframe];
+    const range = Number(currentRange);
+    void fetchFeeChart(tf, chain.name, range)
+      .then((data) => {
+        if (!active) return;
+        setChartPoints(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        if (!active) return;
+        setChartPoints([]);
+        setChartError("No chart data available.");
+      })
+      .finally(() => {
+        if (!active) return;
+        setChartLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [chain, timeframe, currentRange]);
+
+  useEffect(() => {
+    if (!chain) {
+      setStats(emptyChainStats);
+      setLoading({ tokenPrice: false, tx24h: false, validators: false });
+      return;
+    }
+
+    let active = true;
+    setStats(emptyChainStats);
+    setLoading({ tokenPrice: true, tx24h: true, validators: true });
+
+    void fetchTokenPrice(chain.tokenSymbol)
+      .then((data) => {
+        if (!active) return;
+        setStats((prev) => ({ ...prev, tokenPrice: formatTokenPrice(data) }))
+      })
+      .catch(() => {
+        if (!active) return;
+        setStats((prev) => ({ ...prev, tokenPrice: null }));
+      })
+      .finally(() => {
+        if (!active) return;
+        setLoading((prev) => ({ ...prev, tokenPrice: false }));
+      });
+
+    void fetchTransactions24h(chain.name)
+      .then((data) => {
+        if (!active) return;
+        setStats((prev) => ({ ...prev, tx24h: formatMetric(data) }));
+      })
+      .catch(() => {
+        if (!active) return;
+        setStats((prev) => ({ ...prev, tx24h: null }));
+      })
+      .finally(() => {
+        if (!active) return;
+        setLoading((prev) => ({ ...prev, tx24h: false }));
+      });
+
+    void fetchValidators24h(chain.name)
+      .then((data) => {
+        if (!active) return;
+        setStats((prev) => ({ ...prev, validators: formatMetric(data) }));
+      })
+      .catch(() => {
+        if (!active) return;
+        setStats((prev) => ({ ...prev, validators: null }));
+      })
+      .finally(() => {
+        if (!active) return;
+        setLoading((prev) => ({ ...prev, validators: false }));
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [chain]);
+
+const chartModel = useMemo((): ChartModel | null => {
+    if (!chartPoints.length) return null;
+    const values = chartPoints
+      .map((p) => Number(p.fee_value))
+      .filter((v) => Number.isFinite(v));
+    if (!values.length) return null;
+
+    const width = Math.max(1, Math.round(canvasSize.width));
+    const height = Math.max(1, Math.round(canvasSize.height));
+    const padLeft = 0;
+    const padRight = 0;
+    const padTop = 16;
+    const padBottom = 16;
+    const innerW = width - padLeft - padRight;
+    const innerH = height - padTop - padBottom;
+
+    // Determine visible slice
+    const sliceStart = viewStart;
+    const sliceEnd = viewEnd ?? values.length;
+    const sliceValues = values.slice(sliceStart, sliceEnd);
+    const sliceLen = sliceValues.length;
+
+    // Map the visible slice across the live plot width so the line fills the card.
+    const toX = (i: number) =>
+      padLeft + (sliceLen === 1 ? innerW / 2 : (i / (sliceLen - 1)) * innerW);
+
+    const slicePts = sliceValues.map((v, i) => ({
+      x: toX(i),
+      y: 0,
+      value: v,
+      raw: chartPoints[sliceStart + i],
+      index: sliceStart + i,
+    }));
+
+    // Y-scale based on visible slice only
+    const min = Math.min(...sliceValues);
+    const max = Math.max(...sliceValues);
+    const span = max - min || Math.max(Math.abs(max), 1) * 0.1 || 1;
+    const yMin = min - span * 0.1;
+    const yMax = max + span * 0.1;
+    const ySpan = yMax - yMin || 1;
+
+    const toY = (v: number) => padTop + (1 - (v - yMin) / ySpan) * innerH;
+    const ptsWithY = slicePts.map((p) => ({ ...p, y: toY(p.value) }));
+
+    // Line/area for visible slice only
+    const line = ptsWithY.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ");
+    const area = `${padLeft},${padTop + innerH} ${line} ${padLeft + innerW},${padTop + innerH}`;
+    const last = ptsWithY[ptsWithY.length - 1];
+
+    // Ticks based on visible slice Y-range
+    const ticks = Array.from({ length: 4 }, (_, i) => {
+      const ratio = i / 3;
+      const val = yMax - ratio * ySpan;
+      const y = padTop + ratio * innerH;
+      return { value: formatFeeValue(val), y, topPct: (y / height) * 100 };
+    });
+
+    return {
+      width,
+      height,
+      pts: ptsWithY,
+      visiblePts: ptsWithY,
+      line,
+      area,
+      last,
+      ticks,
+      sliceStart,
+      sliceEnd,
+      lastLabel: {
+        value: formatFeeValue(last.value),
+        time: formatChartTime(last.raw.recorded_at, timeframe as UiTimeframe),
+        topPct: clamp((last.y / height) * 100, 8, 92),
+      },
+    };
+  }, [canvasSize.height, canvasSize.width, chartPoints, timeframe, viewStart, viewEnd]);
+
+  const handlePointClick = useCallback((e: React.MouseEvent<SVGCircleElement>, point: ChartPointData) => {
+    e.stopPropagation();
+    const canvas = canvasRef.current;
+    const svg = canvas?.querySelector("svg");
+    if (!canvas || !svg) return;
+    const canvasRect = canvas.getBoundingClientRect();
+    const svgRect = svg.getBoundingClientRect();
+    const viewBox = svg.viewBox.baseVal;
+    if (!viewBox.width || !viewBox.height) return;
+    setTooltip({
+      point,
+      screenX: svgRect.left - canvasRect.left + (point.x / viewBox.width) * svgRect.width,
+      screenY: svgRect.top - canvasRect.top + (point.y / viewBox.height) * svgRect.height,
+    });
+  }, []);
+
+  const handleCanvasClick = useCallback(() => {
+    setTooltip(null);
+  }, []);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      if ((e as KeyboardEvent).key === "Escape") setTooltip(null);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [setTooltip]);
 
   const clearTimer = useRef<number | null>(null);
   const copyAddress = useCallback(async () => {
@@ -242,8 +621,6 @@ export default function ChainDetail() {
     }
   }, [chain]);
 
-  // Keep the chip compact: show only a head and tail slice, while the full value
-  // stays available for copying and assistive tech.
   const shortAddress =
     chain && chain.address.length > 14
       ? `${chain.address.slice(0, 6)}…${chain.address.slice(-4)}`
@@ -255,7 +632,6 @@ export default function ChainDetail() {
         {chain ? (
           <>
             <header className={styles.identity}>
-              {/* Back button sits inline, immediately beside the logo and name. */}
               <Link className={styles.back} to="/" aria-label={explorerCopy.chainPage.back}>
                 <span aria-hidden="true">←</span>
               </Link>
@@ -269,25 +645,29 @@ export default function ChainDetail() {
                   title={`#${chain.address}`}
                   aria-label={`${explorerCopy.chainPage.copyAddress}: #${chain.address}`}
                 >
-                  <span className={styles.addressHash} aria-hidden="true">
-                    #
-                  </span>
+                  <span className={styles.addressHash} aria-hidden="true">#</span>
                   <span className={styles.addressText}>{shortAddress}</span>
                   <span className={styles.copyHint} aria-hidden="true">
                     {copied ? "✓" : "⧉"}
                   </span>
                 </button>
-                {/* Inline confirmation sits right beside the address it refers to. */}
                 <p className={styles.status} role="status" aria-live="polite">
                   {copied ? explorerCopy.chainPage.copied : ""}
                 </p>
               </div>
             </header>
 
-            {/* Metric buttons — values stay open until the backend fills chain.stats. */}
             <div className={styles.tiles}>
               {explorerCopy.chainPage.tiles.map((tile) => {
-                const value = chainTileValue(chain, tile.id);
+                const chainWithStats = { ...chain, stats };
+                const value = chainTileValue(chainWithStats, tile.id);
+                const statKey =
+                  tile.id === "tokens"
+                    ? "tokenPrice"
+                    : tile.id === "transactions"
+                    ? "tx24h"
+                    : "validators";
+                const isLoading = loading[statKey as keyof typeof loading];
                 return (
                   <button
                     key={tile.id}
@@ -300,7 +680,9 @@ export default function ChainDetail() {
                     <span className={styles.tileTitle}>{tile.title}</span>
                     <strong
                       className={styles.tileValue}
-                      data-empty={value ? undefined : "true"}
+                      data-empty={!value ? "true" : undefined}
+                      data-loading={isLoading && !value ? "true" : undefined}
+                      data-ready={value ? "true" : undefined}
                     >
                       {value ?? "—"}
                     </strong>
@@ -309,21 +691,11 @@ export default function ChainDetail() {
               })}
             </div>
 
-            {/*
-              CHART — BACKEND DATA SEAM
-              ----------------------------------------------------------
-              The connecting points (nodes + lines) will be plotted here from
-              data pulled off the backend, e.g.:
-                GET /api/chains/{chain.name}/chart  -> [{ x, y }, ...]
-              Map each returned point to an SVG <circle> and connect them with a
-              <polyline>/<path> inside <g data-chart-points>. Left empty on purpose.
-            */}
             <section className={styles.chart} aria-label={explorerCopy.chainPage.chart.title}>
               <div className={styles.chartHeader}>
                 <h2 className={styles.chartTitle}>{explorerCopy.chainPage.chart.title}</h2>
               </div>
 
-              {/* TradingView-style board: toolbar header, plot, cutter, number column. */}
               <div className={styles.board} data-chart-integration={chain.name}>
                 <div className={styles.boardToolbar}>
                   <div
@@ -372,11 +744,7 @@ export default function ChainDetail() {
                     ))}
                   </div>
 
-                  <div
-                    className={styles.chartControls}
-                    role="group"
-                    aria-label="Chart zoom"
-                  >
+                  <div className={styles.chartControls} role="group" aria-label="Chart zoom">
                     <button
                       type="button"
                       className={styles.chartControl}
@@ -404,6 +772,13 @@ export default function ChainDetail() {
                     >
                       {"\u21ba"}
                     </button>
+                    <span
+                      className={styles.zoomLevel}
+                      aria-live="polite"
+                      aria-label={`Zoom: ${Math.round(((viewEnd ?? totalPoints) - viewStart) / totalPoints * 100)}% of data visible`}
+                    >
+                      {Math.round(((viewEnd ?? totalPoints) - viewStart) / totalPoints * 100)}%
+                    </span>
                   </div>
                 </div>
 
@@ -412,41 +787,171 @@ export default function ChainDetail() {
                     className={styles.plotCanvas}
                     ref={canvasRef}
                     role="img"
-                    aria-label={explorerCopy.chainPage.chart.empty}
-                    data-dragging={dragging}
+                    aria-label={
+                      chartLoading
+                        ? "Loading chart data"
+                        : chartError || explorerCopy.chainPage.chart.empty
+                    }
                     onPointerDown={onPointerDown}
                     onPointerMove={onPointerMove}
                     onPointerUp={endPointer}
                     onPointerCancel={endPointer}
                     onDoubleClick={resetView}
+                    onClick={handleCanvasClick}
                   >
-                    <div className={styles.plotStage} key={timeframe} data-dir={slideDir}>
+                    <div
+                      className={styles.plotStage}
+                      key={`${timeframe}-${currentRange}-${chain.name}`}
+                      data-dir={slideDir}
+                    >
                       <svg
                         className={styles.chartSvg}
-                        viewBox="0 0 600 240"
+                        viewBox={`0 0 ${chartModel?.width ?? Math.max(1, Math.round(canvasSize.width))} ${chartModel?.height ?? Math.max(1, Math.round(canvasSize.height))}`}
                         preserveAspectRatio="none"
                         aria-hidden="true"
-                        style={chartTransform}
                       >
+                        <defs>
+                          <linearGradient id="feeAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="rgba(133, 72, 213, 0.32)" />
+                            <stop offset="50%" stopColor="rgba(133, 72, 213, 0.12)" />
+                            <stop offset="100%" stopColor="rgba(133, 72, 213, 0.02)" />
+                          </linearGradient>
+                          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feMerge>
+                              <feMergeNode in="blur" />
+                              <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                          </filter>
+                          <filter id="pointGlow" x="-100%" y="-100%" width="300%" height="300%">
+                            <feGaussianBlur stdDeviation="2" result="blur" />
+                            <feMerge>
+                              <feMergeNode in="blur" />
+                              <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                          </filter>
+                        </defs>
                         <g className={styles.grid}>
-                          {[40, 90, 140, 190].map((y) => (
-                            <line key={y} x1={0} y1={y} x2={600} y2={y} />
+                          {(chartModel?.ticks ?? [0.22, 0.42, 0.62, 0.82].map((ratio) => ({
+                            y: ratio * Math.max(1, canvasSize.height),
+                          }))).map((tick, idx) => (
+                            <line
+                              key={idx}
+                              x1={0}
+                              y1={tick.y}
+                              x2={chartModel?.width ?? canvasSize.width}
+                              y2={tick.y}
+                            />
                           ))}
                         </g>
-                        <g className={styles.points} data-chart-points="" />
+                        {chartModel && (
+                          <>
+                            <polygon className={styles.area} points={chartModel.area} />
+                            <polyline className={styles.line} points={chartModel.line} />
+                            <g className={styles.points} data-chart-points="">
+                              {chartModel.visiblePts.map((p) => (
+                                <circle
+                                  key={p.raw.id ?? p.index}
+                                  cx={p.x}
+                                  cy={p.y}
+                                  r="4"
+                                  className={styles.point}
+                                  data-active={tooltip?.point.index === p.index ? "true" : undefined}
+                                  data-index={p.index}
+                                  data-value={p.value.toFixed(8)}
+                                  data-time={p.raw.recorded_at}
+                                  onClick={(e) => handlePointClick(e, p)}
+                                  onMouseEnter={(e) => handlePointClick(e, p)}
+                                  onMouseLeave={() => setTooltip(null)}
+                                  style={{
+                                    filter: "url(#pointGlow)",
+                                    transition: "r 0.15s ease, filter 0.15s ease",
+                                  }}
+                                />
+                              ))}
+                              <circle
+                                className={styles.lastPoint}
+                                cx={chartModel.last.x}
+                                cy={chartModel.last.y}
+                                r="6"
+                              />
+                            </g>
+                          </>
+                        )}
                       </svg>
-                      <p className={styles.chartEmpty}>{explorerCopy.chainPage.chart.empty}</p>
+                      {!chartModel && (
+                        <p className={styles.chartEmpty}>
+                          {chartLoading
+                            ? "Loading chart data…"
+                            : chartError || explorerCopy.chainPage.chart.empty}
+                        </p>
+                      )}
                     </div>
+
+                    {tooltip && chartModel && (() => {
+                      const plotW = canvasRef.current?.clientWidth ?? chartModel.width;
+                      const plotH = canvasRef.current?.clientHeight ?? chartModel.height;
+                      const tipW = 220;
+                      const tipH = 118;
+                      const gap = 16;
+                      const openLeft = tooltip.screenX + gap + tipW > plotW - 8;
+                      const left = openLeft
+                        ? Math.max(8, tooltip.screenX - gap - tipW)
+                        : Math.max(8, Math.min(tooltip.screenX + gap, plotW - tipW - 8));
+                      const top = Math.max(8, Math.min(tooltip.screenY - tipH / 2, plotH - tipH - 8));
+                      const visibleIndex = chartModel.visiblePts.findIndex(
+                        (p) => p.index === tooltip.point.index,
+                      );
+                      const rangeUnit =
+                        timeframe === "Hourly" ? "hours" : timeframe === "Weekly" ? "weeks" : "days";
+                      return (
+                      <div
+                        ref={tooltipRef}
+                        className={styles.tooltip}
+                        data-side={openLeft ? "left" : "right"}
+                        style={{ left: `${left}px`, top: `${top}px` }}
+                        role="dialog"
+                        aria-label="Data point details"
+                      >
+                        <div className={styles.tooltipArrow} />
+                        <div className={styles.tooltipContent}>
+                          <div className={styles.tooltipRow}>
+                            <span className={styles.tooltipLabel}>Fee (USDT)</span>
+                            <span className={styles.tooltipValue}>
+                              {formatFeeValue(tooltip.point.value)}
+                            </span>
+                          </div>
+                          <div className={styles.tooltipRow}>
+                            <span className={styles.tooltipLabel}>Time</span>
+                            <span className={styles.tooltipValue}>
+                              {formatChartTime(tooltip.point.raw.recorded_at, timeframe as UiTimeframe)}
+                            </span>
+                          </div>
+                          <div className={styles.tooltipRow}>
+                            <span className={styles.tooltipLabel}>Range</span>
+                            <span className={styles.tooltipValue}>
+                              {currentRange} {rangeUnit}
+                            </span>
+                          </div>
+                          <div className={styles.tooltipRow}>
+                            <span className={styles.tooltipLabel}>Point</span>
+                            <span className={styles.tooltipValue}>
+                              {visibleIndex + 1} of {chartModel.visiblePts.length}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      );
+                    })()}
                   </div>
 
-                  {/* Vertical cutter — drag to resize the right-hand number column. */}
                   <div
                     className={styles.cutter}
                     role="separator"
                     aria-orientation="vertical"
                     aria-label="Resize price scale"
                     aria-valuenow={axisWidth}
-                    aria-valuemin={56}
+                    aria-valuemin={96}
                     aria-valuemax={200}
                     tabIndex={0}
                     onPointerDown={onCutterDown}
@@ -456,24 +961,24 @@ export default function ChainDetail() {
                     onKeyDown={(e) => {
                       if (e.key === "ArrowLeft") {
                         e.preventDefault();
-                        setAxisWidth((w) => clamp(w + 8, 56, 200));
+                        setAxisWidth((w) => clamp(w + 8, 96, 200));
                       } else if (e.key === "ArrowRight") {
                         e.preventDefault();
-                        setAxisWidth((w) => clamp(w - 8, 56, 200));
+                        setAxisWidth((w) => clamp(w - 8, 96, 200));
                       }
                     }}
                   />
 
-                  <aside
-                    className={styles.axis}
-                    style={{ width: axisWidth }}
-                    aria-label="Value scale"
-                  >
+                  <aside className={styles.axis} style={{ width: axisWidth }} aria-label="Value scale">
                     <div className={styles.axisTicks}>
-                      {explorerCopy.chainPage.chart.axis.scale.length > 0 ? (
-                        explorerCopy.chainPage.chart.axis.scale.map((tick) => (
-                          <span key={tick} className={styles.axisTick}>
-                            {tick}
+                      {(chartModel?.ticks ?? []).length > 0 ? (
+                        chartModel!.ticks.map((tick) => (
+                          <span
+                            key={tick.topPct}
+                            className={styles.axisTick}
+                            style={{ top: `${tick.topPct}%` }}
+                          >
+                            {tick.value}
                           </span>
                         ))
                       ) : (
@@ -482,18 +987,18 @@ export default function ChainDetail() {
                         ))
                       )}
                     </div>
-                    {explorerCopy.chainPage.chart.axis.last && (
+                    {chartModel?.lastLabel && (
                       <div
                         className={styles.axisLast}
                         style={{
-                          top: `${explorerCopy.chainPage.chart.axis.last.topPct}%`,
+                          top: `${chartModel.lastLabel.topPct}%`,
                         }}
                       >
                         <span className={styles.axisLastValue}>
-                          {explorerCopy.chainPage.chart.axis.last.value}
+                          {chartModel.lastLabel.value}
                         </span>
                         <span className={styles.axisLastTime}>
-                          {explorerCopy.chainPage.chart.axis.last.time}
+                          {chartModel.lastLabel.time}
                         </span>
                       </div>
                     )}

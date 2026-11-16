@@ -1,0 +1,104 @@
+/**
+ * Full-screen mobile warning. Only shown on small viewports; the rest of the app is
+ * hidden behind it. Uses the same darkorchid accent as the brand so it feels like part
+ * of the same design language, not an error page bolted on afterwards.
+ */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-white);
+  padding: var(--padding-24);
+  font-family: var(--font-inter);
+  text-align: center;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-32);
+  max-width: 100%;
+  width: 100%;
+}
+
+.desktopIcon {
+  width: 240px;
+  height: 210px;
+  animation: float 3.5s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+.heading {
+  margin: var(--margin-0);
+  font-size: var(--fs-32);
+  font-weight: var(--fw-800);
+  line-height: var(--lh-40);
+  color: var(--color-darkslateblue);
+  letter-spacing: -0.02em;
+}
+
+.message {
+  margin: var(--margin-0);
+  font-size: var(--fs-15);
+  font-weight: var(--fw-400);
+  line-height: var(--lh-24);
+  color: var(--color-lightslategray-100);
+  max-width: 100%;
+  padding: 0 var(--padding-8);
+}
+
+@media (min-width: 826px) {
+  .overlay {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .overlay {
+    padding: var(--padding-16);
+  }
+  .desktopIcon {
+    width: 180px;
+    height: 158px;
+  }
+  .heading {
+    font-size: var(--fs-28);
+    line-height: var(--lh-34);
+  }
+  .message {
+    font-size: var(--fs-14);
+    line-height: var(--lh-22);
+  }
+}
+
+@media (max-width: 360px) {
+  .desktopIcon {
+    width: 150px;
+    height: 131px;
+  }
+  .heading {
+    font-size: var(--fs-24);
+    line-height: var(--lh-30);
+  }
+  .content {
+    gap: var(--gap-24);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desktopIcon {
+    animation: none;
+  }
+}

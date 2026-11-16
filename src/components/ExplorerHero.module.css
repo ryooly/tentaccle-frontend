@@ -9,19 +9,24 @@
 }
 
 .header {
-  width: min(100% - var(--shell-gutter) * 2, 1680px);
-  height: var(--height-96);
+  width: var(--shell-width);
+  min-height: var(--height-96);
+  height: auto;
   box-sizing: border-box;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--padding-24) var(--padding-0);
+  flex-wrap: wrap;
+  gap: var(--gap-16);
+  padding: var(--padding-24) 0;
 }
 .brand {
   display: flex;
   align-items: center;
-  gap: var(--gap-24);
+  flex-wrap: wrap;
+  gap: var(--gap-16) var(--gap-24);
+  min-width: 0;
   color: var(--color-darkorchid);
 }
 .brand strong {
@@ -39,7 +44,10 @@
 .navigation {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: var(--gap-16);
+  margin-left: auto;
 }
 .navigation button {
   padding: var(--padding-11) var(--padding-18);
@@ -134,8 +142,15 @@
   animation: devsPulse 2.5s ease-in-out infinite;
 }
 @keyframes devsPulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.25); opacity: 0.85; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 0.85;
+  }
 }
 .navigation .aboutDevsButton:focus-visible {
   outline: var(--border-focus);
@@ -143,14 +158,14 @@
 }
 
 .divider {
-  width: min(100% - var(--shell-gutter) * 2, 1680px);
+  width: var(--shell-width);
   height: var(--height-1);
   background: var(--color-lavender-400);
   margin: var(--margin-0) auto;
 }
 
 .searchBlock {
-  width: min(100% - var(--shell-gutter) * 2, 1240px);
+  width: var(--shell-width);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -321,7 +336,7 @@
 }
 
 .categories {
-  width: min(100% - var(--shell-gutter) * 2, 1240px);
+  width: var(--shell-width);
   margin: var(--margin-48) auto var(--margin-0);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -329,7 +344,7 @@
 }
 
 .mapSection {
-  width: min(100% - var(--shell-gutter) * 2, 1680px);
+  width: var(--shell-width);
   margin: var(--margin-48) auto var(--margin-0);
 }
 .mapIntro {
@@ -452,13 +467,12 @@
   }
 }
 
-/* The tentacle canvas keeps its native aspect ratio and scales with the column; cards
-   track the tips via % and cqw, so the whole octopus grows as one. It never shrinks
-   below its 900px design width and stretches up to 1200px on very large displays. */
+/* The tentacle canvas keeps its aspect ratio and scales with the content column.
+   A cap keeps the map from becoming a very tall strip on ultra-wide screens. */
 .map {
   position: relative;
   width: 100%;
-  max-width: clamp(900px, 42vw, 1200px);
+  max-width: min(100%, 960px);
   margin: var(--margin-0) auto;
   aspect-ratio: 1344 / 2500;
   container-type: inline-size;

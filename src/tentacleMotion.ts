@@ -1,5 +1,5 @@
 /**
- * Shared math for the octopus tentacle undulation. Both the tentacle (which sways by
+ * Shared math for the tentacle undulation. Both the tentacle (which sways by
  * rotating about its head base) and its chain card (wrapped in an element that applies
  * the SAME rotation) derive their motion from here, so the card rides the exact same
  * transform as the tentacle tip and they can never drift apart.
@@ -47,9 +47,14 @@ export function undulateParams(tip: number): TentacleMotion {
 
 /**
  * Glides the viewport to an element with the same easeInOutCubic curve the
- * search bar uses, then focuses the element on arrival.
+ * search bar uses. Focusing is optional so a search jump does not leave a
+ * focus ring on the matched card.
  */
-export function scrollToElement(element: HTMLElement): void {
+export function scrollToElement(
+  element: HTMLElement,
+  options: { focus?: boolean } = {},
+): void {
+  const shouldFocus = options.focus !== false;
   let rafId: number | null = null;
   const start = window.scrollY;
   const rect = element.getBoundingClientRect();
@@ -59,7 +64,9 @@ export function scrollToElement(element: HTMLElement): void {
     Math.min(maxY, start + rect.top + rect.height / 2 - window.innerHeight / 2),
   );
   const delta = target - start;
-  const focus = () => element.focus({ preventScroll: true });
+  const focus = () => {
+    if (shouldFocus) element.focus({ preventScroll: true });
+  };
   if (
     Math.abs(delta) < 8 ||
     window.matchMedia("(prefers-reduced-motion: reduce)").matches

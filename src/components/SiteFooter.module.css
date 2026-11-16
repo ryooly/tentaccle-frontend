@@ -1,5 +1,5 @@
 .footer {
-  width: min(100% - var(--shell-gutter) * 2, 1240px);
+  width: var(--shell-width);
   margin: var(--margin-48) auto 0;
   padding: var(--padding-32) 0 var(--padding-28);
   display: flex;
@@ -10,9 +10,13 @@
 
 .grid {
   display: grid;
-  grid-template-columns: minmax(240px, 1.4fr) repeat(3, minmax(120px, 0.7fr));
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr) minmax(0, 1.2fr);
   gap: var(--padding-32);
   align-items: start;
+}
+
+.grid > * {
+  min-width: 0;
 }
 
 .brandBlock {
@@ -86,6 +90,8 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .chainIcon {
@@ -128,7 +134,7 @@
 .networksGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 120px;
+  gap: 8px 16px;
   margin: var(--gap-12) 0 0;
   padding: 0;
   list-style: none;
@@ -138,9 +144,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--gap-16);
-  padding-top: var(--padding-20);
+  gap: var(--gap-24);
+  padding: var(--padding-20) 0;
   border-top: 2px solid var(--color-lavender-400);
+  width: 100%;
+  margin: 0;
+  flex-wrap: wrap;
 }
 
 .credit,
@@ -149,6 +158,8 @@
   color: var(--color-lightslategray-100);
   font-size: var(--fs-13);
   line-height: var(--lh-18);
+  flex: 1 1 auto;
+  min-width: 200px;
 }
 
 .socials {
@@ -235,6 +246,16 @@
 .social:focus-visible {
   outline: var(--border-focus);
   outline-offset: 3px;
+}
+
+@media (max-width: 1199px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .brandBlock {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 825px) {

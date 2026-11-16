@@ -11,6 +11,7 @@ import {
   type ExplorerCategory,
   type ExplorerChain,
 } from "../content";
+import { fetchLatestFee, formatUsdtFee } from "../api/chainTools";
 import ChainCard from "./ChainCard";
 import TentacleMap from "./TentacleMap";
 import { undulateParams, scrollToElement } from "../tentacleMotion";
@@ -44,6 +45,47 @@ export default function ExplorerHero({
   };
   // Tip of the tentacle connected to whichever card is hovered/focused; null clears the highlight.
   const [activeTip, setActiveTip] = useState<number | null>(null);
+  // Live fee (USDT) per chain, fetched from the chart endpoint and shown on each card.
+  // Stored as raw numbers so we can fall back to the static USDT value when no live data exists.
+  const [fees, setFees] = useState<Record<string, number | null>>({});
+  // Tracks which chains have live DB data vs static fallback.
+  const [liveFees, setLiveFees] = useState<Record<string, boolean>>({});
+  const [feeLoading, setFeeLoading] = useState(false);
+
+  // Poll latest fee (USDT) for every chain so card values track the chart.
+  useEffect(() => {
+    let active = true;
+    let timer: ReturnType<typeof setInterval>;
+
+    const fetchFees = async () => {
+      setFeeLoading(true);
+      const next: Record<string, number | null> = {};
+      const nextLive: Record<string, boolean> = {};
+      await Promise.all(
+        explorerChains.map(async (chain) => {
+          const value = await fetchLatestFee(chain.name);
+          if (active) {
+            next[chain.name] = value;
+            nextLive[chain.name] = value != null;
+          }
+        }),
+      );
+      if (active) {
+        setFees(next);
+        setLiveFees(nextLive);
+        setFeeLoading(false);
+      }
+    };
+
+    fetchFees();
+    timer = setInterval(fetchFees, 15000);
+
+    return () => {
+      active = false;
+      clearInterval(timer);
+      setFeeLoading(false);
+    };
+  }, []);
 
   // --- Search-and-jump: submitting simply directs the user to the matching chain card. ---
   const inputRef = useRef<HTMLInputElement>(null);
@@ -65,9 +107,12 @@ export default function ExplorerHero({
     });
   }, [searchJump, onSearchChange]);
 
-  /** Glides the viewport down to the card on the shared eased curve, then focuses it. */
+  /** Glides the viewport down to the card without leaving a focus frame on it. */
   const scrollToCard = (card: HTMLElement) => {
-    scrollToElement(card);
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    scrollToElement(card, { focus: false });
   };
 
   const handleLaunch = (event: FormEvent<HTMLFormElement>) => {
@@ -119,9 +164,8 @@ export default function ExplorerHero({
     const card = chain
       ? document.querySelector<HTMLElement>(`[data-chain="${chain.name}"]`)
       : null;
-    if (!card) return;
-    // Bring the target button into view with an eased glide and focus it on arrival:
-    // its own focus/press states (accent outline, lift, :active sink) handle the rest.
+    if (!card || !chain) return;
+    setActiveTip(chain.tip);
     scrollToCard(card);
   };
 
@@ -238,7 +282,8 @@ export default function ExplorerHero({
                   }
                   iconSrc={chain.iconSrc}
                   name={chain.name}
-                  gas={chain.gas}
+                  gas={fees[chain.name] != null ? formatUsdtFee(fees[chain.name]) : "-"}
+                  isLive={liveFees[chain.name] ?? false}
                   onSelect={() => onChainSelect?.(chain)}
                   onHover={(hovered) => setActiveTip(hovered ? chain.tip : null)}
                 />

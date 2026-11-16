@@ -1,5 +1,5 @@
 /* Card metrics use container query units (cqw = 1% of the map width) so the whole
-   octopus — tentacles and cards together — scales down as one, keeping every card
+   tentacle — tentacles and cards together — scales down as one, keeping every card
    locked to its tentacle tip without ever overlapping its neighbours. */
 .card {
   position: absolute;
@@ -78,6 +78,21 @@
   font-size: 1.08cqw;
   font-weight: var(--fw-700);
   line-height: 1.44cqw;
+}
+
+/* Live-fee variant: accent color to distinguish real DB data from static fallback. */
+.gasLive {
+  color: var(--color-darkorchid);
+}
+
+.liveDot {
+  display: inline-block;
+  width: 0.45cqw;
+  height: 0.45cqw;
+  border-radius: 50%;
+  background: var(--color-darkorchid);
+  margin-left: 0.2cqw;
+  vertical-align: middle;
 }
 
 .cta {

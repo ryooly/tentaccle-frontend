@@ -21,7 +21,7 @@
 /* Fluid shells matching the hero's content columns: viewport minus the shared gutter,
    capped so lines stay readable even on very wide displays. */
 .discovery {
-  width: min(100% - var(--shell-gutter) * 2, 1240px);
+  width: var(--shell-width);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(211px, 1fr));
   gap: var(--gap-16);

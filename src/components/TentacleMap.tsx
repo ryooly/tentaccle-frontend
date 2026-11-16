@@ -5,13 +5,13 @@ import styles from "./TentacleMap.module.css";
 export interface TentacleMapProps {
   /** Tip index of the tentacle to keep in full color; all others fade to gray. Null = none hovered. */
   activeTip: number | null;
-  /** Optional action fired when the octopus head is activated (click or Enter/Space). */
+  /** Optional action fired when the tentacle head is activated (click or Enter/Space). */
   onHeadPress?: () => void;
   className?: string;
 }
 
 /**
- * The octopus's eight downward tentacles plus its head, recreated as inline SVG so each
+ * The tentacle's eight downward tentacles plus its head, recreated as inline SVG so each
  * tentacle can be styled independently. Tip index matches the SVG source order (0-7).
  * tipX/tipY is the anchored endpoint (in viewBox px) that each card sits on. Undulation
  * instead pivots at the head (base), so nothing near the head moves outside its silhouette.
@@ -90,7 +90,7 @@ const TENTACLES: {
   },
 ];
 
-/** The eight-tentacle octopus canvas, kept in sync with /Octopus-Eight-downward-tentacles.svg. */
+/** The eight-tentacle tentacle canvas, kept in sync with /Octopus-Eight-downward-tentacles.svg. */
 export default function TentacleMap({
   activeTip,
   onHeadPress,
@@ -111,7 +111,7 @@ export default function TentacleMap({
       xmlns="http://www.w3.org/2000/svg"
       preserveAspectRatio="none"
       role="group"
-      aria-label="Octopus with eight tentacles reaching the connected blockchains"
+      aria-label="Tentacle with eight tentacles reaching the connected blockchains"
     >
       {TENTACLES.map((t) => {
         const dimmed = activeTip !== null && t.tip !== activeTip;
@@ -172,7 +172,7 @@ export default function TentacleMap({
         className={styles.head}
         role="button"
         tabIndex={0}
-        aria-label="Octopus head"
+        aria-label="Tentacle head"
         onClick={onHeadPress}
         onKeyDown={handleHeadKeyDown}
       >
