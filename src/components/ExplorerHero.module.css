@@ -8,162 +8,6 @@
   padding-bottom: var(--padding-48);
 }
 
-.header {
-  width: var(--shell-width);
-  min-height: var(--height-96);
-  height: auto;
-  box-sizing: border-box;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--gap-16);
-  padding: var(--padding-24) 0;
-}
-.brand {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--gap-16) var(--gap-24);
-  min-width: 0;
-  color: var(--color-darkorchid);
-}
-.brand strong {
-  font-size: var(--fs-32);
-  font-weight: var(--fw-800);
-  line-height: var(--lh-40);
-}
-.brand span {
-  padding-top: var(--padding-16);
-  color: var(--color-lightslategray-200);
-  font-size: var(--fs-11);
-  font-weight: var(--fw-700);
-  line-height: var(--lh-16);
-}
-.navigation {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: var(--gap-16);
-  margin-left: auto;
-}
-.navigation button {
-  padding: var(--padding-11) var(--padding-18);
-  border: var(--border-1);
-  border-radius: var(--br-20);
-  background: var(--color-white);
-  box-shadow: var(--shadow-drop-5);
-  color: var(--color-darkslateblue);
-  cursor: pointer;
-  font: var(--fw-700) var(--fs-15)/var(--lh-19) var(--font-inter);
-  transition:
-    transform var(--duration-hover) ease,
-    box-shadow var(--duration-hover) ease,
-    border-color var(--duration-hover) ease,
-    color var(--duration-hover) ease;
-}
-.navigation button:not(.walletButton):hover {
-  transform: translateY(-2px);
-  border-color: var(--color-darkorchid);
-  box-shadow: var(--shadow-drop-hover);
-  color: var(--color-darkorchid);
-}
-.navigation button:not(.walletButton):active {
-  transform: translateY(1px) scale(0.98);
-  box-shadow: var(--shadow-drop-5);
-  transition-duration: 0.06s;
-}
-.navigation button:not(.walletButton):focus-visible {
-  outline: var(--border-focus);
-  outline-offset: 3px;
-}
-.navigation .walletButton {
-  height: var(--height-46);
-  padding: var(--padding-12) var(--padding-35) var(--padding-15);
-  border: var(--border-wallet);
-  border-radius: var(--br-20);
-  background: var(--color-white);
-  /* Same interaction language as the chain/category cards: its own drop color, held in
-     --tone-shadow, deepening on hover and flattening on press. */
-  --tone-shadow: #d7c6ec;
-  box-shadow: 0px 6px 0px var(--tone-shadow);
-  color: var(--color-darkorchid);
-  transition:
-    transform var(--duration-hover) ease,
-    box-shadow var(--duration-hover) ease,
-    border-color var(--duration-hover) ease;
-}
-.navigation .walletButton:hover {
-  transform: translateY(-6px) scale(1.05);
-  box-shadow: 0px 12px 0px var(--tone-shadow);
-  border-color: var(--color-darkorchid);
-}
-.walletButton:focus-visible {
-  outline: var(--border-focus);
-  outline-offset: 3px;
-}
-.navigation .walletButton:active {
-  transform: translateY(1px) scale(0.98);
-  box-shadow: 0px 2px 0px var(--tone-shadow);
-  transition-duration: 0.06s;
-}
-
-/* Special About Devs button: distinct glow, badge, and pulsing accent to set it apart. */
-.navigation .aboutDevsButton {
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-  background: linear-gradient(135deg, var(--color-darkorchid), #8e44ad);
-  border: var(--border-wallet);
-  color: var(--color-white);
-  box-shadow: 0px 6px 0px #5a2a8a;
-}
-.navigation .aboutDevsButton:hover {
-  transform: translateY(-6px) scale(1.06);
-  box-shadow: 0 0 20px rgba(156, 84, 203, 0.6), 0px 12px 0px #5a2a8a;
-  border-color: var(--color-darkorchid);
-}
-.navigation .aboutDevsButton:active {
-  transform: translateY(1px) scale(0.98);
-  box-shadow: 0px 2px 0px #5a2a8a;
-  transition-duration: 0.06s;
-}
-.devsBadge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1em;
-  height: 1em;
-  margin-right: var(--gap-6);
-  font-size: var(--fs-16);
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.15));
-  animation: devsPulse 2.5s ease-in-out infinite;
-}
-@keyframes devsPulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.25);
-    opacity: 0.85;
-  }
-}
-.navigation .aboutDevsButton:focus-visible {
-  outline: var(--border-focus);
-  outline-offset: 3px;
-}
-
-.divider {
-  width: var(--shell-width);
-  height: var(--height-1);
-  background: var(--color-lavender-400);
-  margin: var(--margin-0) auto;
-}
-
 .searchBlock {
   width: var(--shell-width);
   margin: 0 auto;
@@ -512,20 +356,6 @@
   .hero {
     padding-bottom: var(--padding-24);
   }
-  .header {
-    width: auto;
-    height: auto;
-    padding: var(--padding-16);
-  }
-  .navigation {
-    gap: var(--gap-16);
-  }
-  .navigation button:not(.walletButton) {
-    display: none;
-  }
-  .divider {
-    width: calc(100% - var(--padding-32));
-  }
   .searchBlock {
     width: auto;
     padding: var(--padding-20) var(--padding-16) var(--padding-0);
@@ -550,7 +380,30 @@
   .mapIntro {
     margin-bottom: var(--margin-24);
   }
-  .mapEyebrow {
+.betaBadge {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 4px 12px;
+  font-size: var(--fs-12);
+  font-weight: var(--fw-800);
+  font-family: var(--font-inter);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-white);
+  background: linear-gradient(135deg, var(--color-darkorchid), #a855f7);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  vertical-align: middle;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.betaBadge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.5);
+}
+
+.mapEyebrow {
     letter-spacing: 0.16em;
   }
   .mapEyebrowRule {

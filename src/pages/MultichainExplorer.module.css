@@ -7,6 +7,20 @@
   font-family: var(--font-inter);
 }
 
+.betaBanner {
+  width: var(--shell-width);
+  margin: 0 auto 12px;
+  padding: 6px 12px;
+  text-align: center;
+  font-size: var(--fs-12);
+  font-weight: var(--fw-800);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-white);
+  background: var(--color-darkorchid);
+  border-radius: var(--br-16);
+}
+
 /* Keep every section above the NetworkBackdrop layer. */
 .page > *:not(:first-child) {
   position: relative;

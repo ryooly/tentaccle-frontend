@@ -1,5 +1,5 @@
 .footer {
-  width: var(--shell-width);
+  width: var(--chrome-width);
   margin: var(--margin-48) auto 0;
   padding: var(--padding-32) 0 var(--padding-28);
   display: flex;
@@ -28,11 +28,22 @@
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   color: var(--color-darkorchid);
   font-size: var(--fs-22);
   font-weight: var(--fw-800);
   letter-spacing: -0.03em;
   line-height: 1;
+}
+
+.brandMark {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  border-radius: 6px;
+  object-fit: cover;
 }
 
 .product {

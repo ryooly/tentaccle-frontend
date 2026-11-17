@@ -2,8 +2,8 @@ export const explorerCopy = {
   brand: "tentaccle",
   product: "MULTICHAIN EXPLORER",
   explore: "Explore",
-  learn: "Learn",
-  connectWallet: "About Devs",
+  docs: "Docs",
+  aboutDevs: "About Devs",
   heading: "Search the pulse of every chain",
   heroEyebrow: "Multichain Gas Explorer",
   headingLead: "Search the",
@@ -34,6 +34,8 @@ export const explorerCopy = {
         links: [
           { label: "Network map", to: "/#map" },
           { label: "Discover", to: "/#discover" },
+          { label: "Docs", to: "/docs" },
+          { label: "About Devs", to: "/about" },
         ],
       },
       ],
@@ -83,6 +85,93 @@ export const explorerCopy = {
         volume: "",
       },
     },
+  },
+  docsPage: {
+    eyebrow: "Documentation",
+    titleLead: "How to read",
+    titleAccent: "tentaccle",
+    lede: "A short guide to the map, the search, and a chain page. The explorer is built for a desktop screen.",
+    sections: [
+      {
+        id: "overview",
+        title: "The explorer",
+        paragraphs: [
+          "Tentaccle is a multichain gas explorer. The home screen is a living map of eight networks. Each card shows that network’s latest fee in USDT when the feed has one, and a dash while the number is still arriving.",
+          "Fees refresh about every fifteen seconds. A card with a live reading is marked as such, so you can tell a fresh fee from a value that has not come in yet.",
+        ],
+      },
+      {
+        id: "search",
+        title: "Search",
+        paragraphs: [
+          "Type a network name into the search field and press Dive. The page glides to the matching card and lights the tentacle it hangs from.",
+          "A partial name is enough. “eth” finds Ethereum. A nearby word can still land on the right chain — “binance” resolves to BNB Chain.",
+        ],
+      },
+      {
+        id: "map",
+        title: "The gas pulse map",
+        paragraphs: [
+          "Eight chains sit on the tips of one tentacle. Hover a card to see which arm it belongs to. Choose the card to open that network’s page.",
+          "Explore, in the header, brings you back to this map from anywhere in the product.",
+        ],
+      },
+      {
+        id: "chain",
+        title: "A chain page",
+        paragraphs: [
+          "A chain page shows the network name and a public address you can copy. Three tiles sit under the name: token price in USDT, transactions over the last 24 hours, and the validator or miner count.",
+          "A tile stays as a dash until that figure arrives. The page does not invent a number to fill the gap.",
+        ],
+      },
+      {
+        id: "chart",
+        title: "The activity chart",
+        paragraphs: [
+          "Under the tiles, the chart is that network’s recent activity. Switch Hourly, Daily, or Weekly, then pick a range: 24, 48, or 72 hours; 7, 14, or 21 days; 3, 6, or 9 weeks.",
+          "The plot fills in as points stream from the backend. An empty board means the series has not arrived yet.",
+        ],
+      },
+    ],
+  },
+  aboutPage: {
+    eyebrow: "The team",
+    title: "About Devs",
+    subtitle: "Meet the minds behind the explorer.",
+    badge: "Beta",
+    // Paste profile URLs here. An empty href still shows the button.
+    profiles: [
+      {
+        name: "RyoLeee",
+        role: "Backend",
+        focus: "Keeps the fee feed honest and sends each chain’s numbers to the map.",
+        details: [
+          { label: "Focus", value: "Live fees, token price, 24h transactions, validators" },
+          { label: "Contributions", value: "Hourly, daily, and weekly activity charts" },
+          { label: "Title", value: "Fullstack & AI Integration" },
+        ],
+        links: [
+          { id: "github" as const, label: "GitHub", href: "https://github.com/RyoLeee" },
+          { id: "x" as const, label: "X", href: "" },
+          { id: "linkedin" as const, label: "LinkedIn", href: "" },
+        ],
+      },
+      {
+        name: "Developer",
+        role: "Frontend",
+        focus: "Draws the explorer so eight networks stay readable on one screen.",
+        details: [
+          { label: "Focus", value: "Gas map, search, and chain pages" },
+          { label: "Contributions", value: "Docs and the activity chart on screen" },
+          { label: "Title", value: "UIUX Designer" },
+        ],
+        links: [
+          { id: "github" as const, label: "GitHub", href: "" },
+          { id: "x" as const, label: "X", href: "" },
+          { id: "linkedin" as const, label: "LinkedIn", href: "" },
+        ],
+      },
+    ],
   },
 } as const;
 
@@ -243,3 +332,4 @@ export function chainSlug(name: string): string {
 export function findChainBySlug(slug: string): ExplorerChain | undefined {
   return explorerChains.find((chain) => chainSlug(chain.name) === slug);
 }
+

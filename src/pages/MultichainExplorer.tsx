@@ -9,7 +9,7 @@ import {
 import ExplorerHero from "../components/ExplorerHero";
 import NetworkBackdrop from "../components/NetworkBackdrop";
 import SiteFooter from "../components/SiteFooter";
-import { scrollToElement } from "../tentacleMotion";
+import SiteHeader from "../components/SiteHeader";
 import styles from "./MultichainExplorer.module.css";
 
 interface MultichainExplorerProps {}
@@ -41,15 +41,10 @@ export default function MultichainExplorer(_: MultichainExplorerProps) {
         </span>
         <span>{explorerCopy.desktopWarning}</span>
       </p>
+      <SiteHeader />
       <ExplorerHero
         onCategorySelect={handleCategorySelect}
         onChainSelect={handleChainSelect}
-        onExplore={() => {
-          const map = document.getElementById("map");
-          if (map) {
-            scrollToElement(map);
-          }
-        }}
         searchJump={searchJump}
       />
       <SiteFooter />

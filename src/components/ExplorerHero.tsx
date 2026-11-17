@@ -18,22 +18,16 @@ import { undulateParams, scrollToElement } from "../tentacleMotion";
 import styles from "./ExplorerHero.module.css";
 
 export interface ExplorerHeroProps {
-  onConnectWallet?: () => void;
   onSearchChange?: (value: string) => void;
-  onExplore?: () => void;
-  onLearn?: () => void;
   onCategorySelect?: (category: ExplorerCategory) => void;
   onChainSelect?: (chain: ExplorerChain) => void;
   /** When set (new nonce), seeds the search field and scrolls it into view. */
   searchJump?: { query: string; nonce: number } | null;
 }
 
-/** The header, category shortcuts, and chain-map canvas of the explorer. */
+/** The search field and chain-map canvas of the explorer. */
 export default function ExplorerHero({
-  onConnectWallet,
   onSearchChange,
-  onExplore,
-  onLearn,
   onCategorySelect,
   onChainSelect,
   searchJump,
@@ -171,33 +165,10 @@ export default function ExplorerHero({
 
   return (
     <section className={styles.hero}>
-      <header className={styles.header}>
-        <div className={styles.brand}>
-          <strong>{explorerCopy.brand}</strong>
-          <span>{explorerCopy.product}</span>
-        </div>
-        <nav className={styles.navigation} aria-label={explorerCopy.product}>
-          <button type="button" onClick={onExplore}>
-            {explorerCopy.explore}
-          </button>
-          <button type="button" onClick={onLearn}>
-            {explorerCopy.learn}
-          </button>
-          <button
-            className={`${styles.walletButton} ${styles.aboutDevsButton}`}
-            type="button"
-            onClick={onConnectWallet}
-            aria-label="About the developers"
-          >
-            <span className={styles.devsBadge} aria-hidden="true">✦</span>
-            {explorerCopy.connectWallet}
-          </button>
-        </nav>
-      </header>
-      <div className={styles.divider} />
       <div className={styles.searchBlock}>
         <div className={styles.headlineGroup}>
           <span className={styles.eyebrow}>{explorerCopy.heroEyebrow}</span>
+          <span className={styles.betaBadge}>{explorerCopy.aboutPage.badge}</span>
           <h1>
             {explorerCopy.headingLead}{" "}
             <span className={styles.heroAccent}>{explorerCopy.headingAccent}</span>{" "}

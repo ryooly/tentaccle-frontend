@@ -67,7 +67,16 @@ export default function SiteFooter() {
     <footer className={styles.footer}>
       <div className={styles.grid}>
         <div className={styles.brandBlock}>
-          <span className={styles.brand}>{explorerCopy.brand}</span>
+          <span className={styles.brand}>
+            <img
+              className={styles.brandMark}
+              src="/brand-logo.jpg"
+              alt=""
+              width={36}
+              height={36}
+            />
+            {explorerCopy.brand}
+          </span>
           <p className={styles.product}>{explorerCopy.product}</p>
           <p className={styles.summary}>{summary}</p>
           <nav className={styles.socials} aria-label="Social">
