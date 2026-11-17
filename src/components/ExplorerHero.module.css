@@ -34,6 +34,35 @@
 .heroAccent {
   color: var(--color-darkorchid);
 }
+
+/* "Beta" pill next to the eyebrow. Defined globally (not only inside the mobile
+   query) so it renders as a proper badge at every width, using the same type
+   scale and pill shape as the other uppercase labels. */
+.betaBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--padding-4) var(--padding-12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--br-26);
+  background: linear-gradient(135deg, var(--color-darkorchid), #a855f7);
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+  color: var(--color-white);
+  font-family: var(--font-inter);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-800);
+  line-height: var(--lh-16);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.betaBadge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.5);
+}
+
 .heroSub {
   margin: var(--margin-0);
   max-width: min(100%, 640px);
@@ -384,29 +413,6 @@
   .mapIntro {
     margin-bottom: var(--margin-24);
   }
-.betaBadge {
-  display: inline-block;
-  margin-left: 10px;
-  padding: 4px 12px;
-  font-size: var(--fs-12);
-  font-weight: var(--fw-800);
-  font-family: var(--font-inter);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--color-white);
-  background: linear-gradient(135deg, var(--color-darkorchid), #a855f7);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 999px;
-  vertical-align: middle;
-  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.betaBadge:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.5);
-}
-
 .mapEyebrow {
     letter-spacing: 0.16em;
   }
