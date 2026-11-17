@@ -28,7 +28,10 @@ function App() {
       return;
     }
     if (action === "POP") return;
-    window.scrollTo(0, 0);
+    // Jump to the top instantly on navigation. With the global `scroll-behavior: smooth`
+    // this would otherwise animate a long glide from the previous scroll position, which
+    // reads as laggy scroll jank on every route change.
+    window.scrollTo({ top: 0, behavior: "instant" });
   }, [action, pathname, hash]);
   useEffect(() => {
     const title =

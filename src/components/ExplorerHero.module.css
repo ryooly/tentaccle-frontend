@@ -337,6 +337,10 @@
   transform-origin: var(--sway-origin-x, 50%) var(--sway-origin-y, 50%);
   animation: cardSway var(--undulate-dur, 7s) ease-in-out infinite;
   animation-delay: var(--undulate-delay, 0s);
+  /* Promote each card layer to the compositor so its rotation never triggers layout or
+     repaint on the main thread while the page scrolls. */
+  will-change: transform;
+  backface-visibility: hidden;
 }
 .cardSway > * {
   pointer-events: auto;

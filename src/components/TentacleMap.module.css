@@ -2,11 +2,14 @@
    and recedes so the connected chain stands out. */
 .tentacle {
   /* Pivot the slow sway around the anchored tip so the body undulates while the tip
-     (and its card) stay perfectly fixed. transform-box makes --pivot-* resolve in viewBox px. */
+     (and its card) stay perfectly fixed. transform-box makes --pivot-* resolve in viewBox px.
+     will-change promotes each swaying group to its own compositor layer so the rotation
+     (and the travelling pulse inside it) stays off the main thread while scrolling. */
   transform-box: view-box;
   transform-origin: var(--pivot-x, 50%) var(--pivot-y, 50%);
   animation: undulate var(--undulate-dur, 7s) ease-in-out infinite;
   animation-delay: var(--undulate-delay, 0s);
+  will-change: transform;
   transition:
     opacity 0.35s ease,
     filter 0.35s ease;
@@ -29,12 +32,13 @@
 
 /* Traveling "gas pulse" that flows head → tip along the tentacle. Uses pathLength=100
    so the dash math is identical on every tentacle regardless of its real length, and it
-   never moves the path geometry — the tips stay locked to their cards. */
+   never moves the path geometry — the tips stay locked to their cards. No `filter` here:
+   a drop-shadow re-renders on every stroke-dashoffset frame, which is costly across eight
+   tentacles; the light stroke already reads as a glow without it. */
 .pulse {
   stroke-dasharray: 10 90;
   animation: tentaclePulse var(--pulse-dur, 3.4s) linear infinite;
   animation-delay: var(--pulse-delay, 0s);
-  filter: drop-shadow(0 0 5px rgba(198, 155, 249, 0.85));
 }
 
 @keyframes tentaclePulse {
@@ -51,7 +55,6 @@
   stroke: #ffffff;
   stroke-width: 10;
   animation-duration: calc(var(--pulse-dur, 3.4s) / 1.7);
-  filter: drop-shadow(0 0 10px rgba(216, 178, 255, 1));
 }
 
 /* The head always keeps its full color — and works as a pressable button: it rides a

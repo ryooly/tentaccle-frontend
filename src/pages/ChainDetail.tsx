@@ -288,10 +288,15 @@ export default function ChainDetail() {
     ro.observe(el);
 
     const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
       const rect = el.getBoundingClientRect();
       const currentSize = (viewEnd ?? totalPoints) - viewStart;
-      if (currentSize <= minViewSize && e.deltaY < 0) return;
+      // Wheel up (deltaY < 0) widens the window (zoom out); wheel down zooms in. At a zoom
+      // limit the gesture would be a no-op, so let the page scroll instead of trapping the
+      // wheel over the chart — otherwise the page can't be scrolled past the chart.
+      const atMaxZoomOut = currentSize >= maxViewSize && e.deltaY < 0;
+      const atMaxZoomIn = currentSize <= minViewSize && e.deltaY > 0;
+      if (atMaxZoomOut || atMaxZoomIn) return;
+      e.preventDefault();
       const pxPerPoint = rect.width / Math.max(1, currentSize);
       const mouseIndex = Math.round((e.clientX - rect.left) / pxPerPoint) + viewStart;
       const factor = Math.exp(-e.deltaY * 0.002);
