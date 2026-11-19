@@ -1,7 +1,7 @@
 /**
- * Full-screen mobile warning. Only shown on small viewports; the rest of the app is
- * hidden behind it. Uses the same darkorchid accent as the brand so it feels like part
- * of the same design language, not an error page bolted on afterwards.
+ * Full-screen mobile warning overlay shown on viewport widths < 826px.
+ * Features the GasPulse purple octopus hugging a desktop monitor with animated
+ * suction cups, blinking eyes, multichain connection pulses, and ambient bubbles.
  */
 .overlay {
   position: fixed;
@@ -10,95 +10,207 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-white);
+  background: radial-gradient(
+    circle at 50% 36%,
+    rgba(172, 107, 243, 0.09) 0%,
+    rgba(255, 255, 255, 1) 75%
+  );
   padding: var(--padding-24);
   font-family: var(--font-inter);
   text-align: center;
+  overflow-y: auto;
 }
 
 .content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--gap-32);
-  max-width: 100%;
+  gap: var(--gap-28, 28px);
+  max-width: 440px;
+  width: 100%;
+  margin: auto;
+}
+
+.illustrationWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
   width: 100%;
 }
 
 .desktopIcon {
-  width: 240px;
-  height: 210px;
-  animation: float 3.5s ease-in-out infinite;
+  width: 290px;
+  height: 258px;
+  max-width: 90vw;
+  filter: drop-shadow(0 18px 36px rgba(46, 23, 84, 0.16));
+  animation: float 3.6s ease-in-out infinite;
+  transform-origin: center center;
+  will-change: transform;
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-12px);
+    transform: translateY(-10px);
   }
 }
 
+/* Ambient bobbing bubbles */
+.bubbles {
+  transform-box: fill-box;
+  transform-origin: center center;
+  animation: bubbleBob 4.4s ease-in-out infinite;
+}
+
+@keyframes bubbleBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1.5deg);
+  }
+}
+
+/* Eyelids blink every ~4.2s */
+.eyelid {
+  transform-box: view-box;
+  transform-origin: var(--lid-cx, 157px) var(--lid-cy, 50px);
+  transform: scaleY(0);
+  animation: blink 4.2s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%,
+  45%,
+  55%,
+  100% {
+    transform: scaleY(0);
+  }
+  48%,
+  52% {
+    transform: scaleY(1);
+  }
+}
+
+/* Multichain connection dashed stream pulse */
+.networkLines line {
+  stroke-dasharray: 4 4;
+  animation: pulseStream 2.6s linear infinite;
+}
+
+@keyframes pulseStream {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
+/* Text and informational container */
+.textContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(172, 107, 243, 0.12);
+  color: #763bc8;
+  border: 1px solid rgba(172, 107, 243, 0.24);
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.badgeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+}
+
 .heading {
-  margin: var(--margin-0);
-  font-size: var(--fs-32);
-  font-weight: var(--fw-800);
-  line-height: var(--lh-40);
-  color: var(--color-darkslateblue);
+  margin: 0;
+  font-size: var(--fs-32, 32px);
+  font-weight: var(--fw-800, 800);
+  line-height: var(--lh-40, 40px);
+  color: var(--color-darkslateblue, #20113b);
   letter-spacing: -0.02em;
 }
 
 .message {
-  margin: var(--margin-0);
-  font-size: var(--fs-15);
-  font-weight: var(--fw-400);
-  line-height: var(--lh-24);
-  color: var(--color-lightslategray-100);
-  max-width: 100%;
-  padding: 0 var(--padding-8);
+  margin: 0;
+  font-size: var(--fs-15, 15px);
+  font-weight: var(--fw-400, 400);
+  line-height: var(--lh-24, 24px);
+  color: var(--color-lightslategray-100, #677189);
+  max-width: 360px;
+  padding: 0 var(--padding-8, 8px);
 }
 
+/* Hide on desktop (>= 826px) */
 @media (min-width: 826px) {
   .overlay {
     display: none;
   }
 }
 
+/* Mobile size optimization */
 @media (max-width: 480px) {
   .overlay {
-    padding: var(--padding-16);
+    padding: var(--padding-16, 16px);
   }
   .desktopIcon {
-    width: 180px;
-    height: 158px;
+    width: 250px;
+    height: 222px;
   }
   .heading {
-    font-size: var(--fs-28);
-    line-height: var(--lh-34);
+    font-size: var(--fs-28, 28px);
+    line-height: var(--lh-34, 34px);
   }
   .message {
-    font-size: var(--fs-14);
-    line-height: var(--lh-22);
+    font-size: var(--fs-14, 14px);
+    line-height: var(--lh-22, 22px);
   }
 }
 
 @media (max-width: 360px) {
   .desktopIcon {
-    width: 150px;
-    height: 131px;
+    width: 210px;
+    height: 186px;
   }
   .heading {
-    font-size: var(--fs-24);
-    line-height: var(--lh-30);
+    font-size: var(--fs-24, 24px);
+    line-height: var(--lh-30, 30px);
   }
   .content {
-    gap: var(--gap-24);
+    gap: var(--gap-20, 20px);
   }
 }
 
+/* Respect users who prefer no motion */
 @media (prefers-reduced-motion: reduce) {
-  .desktopIcon {
+  .desktopIcon,
+  .bubbles,
+  .networkLines line {
     animation: none;
+  }
+  .eyelid {
+    animation: none;
+    transform: scaleY(0);
   }
 }

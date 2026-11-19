@@ -43,8 +43,152 @@ function ProfileIcon({ id }: { id: ProfileLink["id"] }) {
   );
 }
 
+function FastAPILogo({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 256 256" className={className} aria-label="FastAPI Logo">
+      <circle cx="128" cy="128" r="128" fill="#009688" />
+      <path
+        fill="#FFFFFF"
+        d="M121.33 230.605v-80.288H76.699l64.128-124.922v80.288h42.966z"
+      />
+    </svg>
+  );
+}
+
+function PythonLogo({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 64 64" className={className} aria-label="Python Logo">
+      <defs>
+        <linearGradient id="py-blue" x1="16" y1="16" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#387EB8" />
+          <stop offset="100%" stopColor="#366994" />
+        </linearGradient>
+        <linearGradient id="py-yellow" x1="24" y1="24" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#FFE052" />
+          <stop offset="100%" stopColor="#FFC331" />
+        </linearGradient>
+      </defs>
+      <path
+        fill="url(#py-blue)"
+        d="M31.885 16c-8.124 0-7.617 3.523-7.617 3.523l.01 3.65h7.752v1.095H21.197S16 23.678 16 31.876c0 8.196 4.537 7.906 4.537 7.906h2.708v-3.804s-.146-4.537 4.465-4.537h7.688s4.32.07 4.32-4.175v-7.019S40.374 16 31.885 16zm-4.275 2.454a1.394 1.394 0 1 1 0 2.79 1.393 1.393 0 0 1-1.395-1.395c0-.771.624-1.395 1.395-1.395z"
+      />
+      <path
+        fill="url(#py-yellow)"
+        d="M32.115 47.833c8.124 0 7.617-3.523 7.617-3.523l-.01-3.65H31.97v-1.095h10.832S48 40.155 48 31.958c0-8.197-4.537-7.906-4.537-7.906h-2.708v3.803s.146 4.537-4.465 4.537h-7.688s-4.32-.07-4.32 4.175v7.019s-.656 4.247 7.833 4.247zm4.275-2.454a1.393 1.393 0 0 1-1.395-1.395 1.394 1.394 0 1 1 1.395 1.395z"
+      />
+    </svg>
+  );
+}
+
+function ReactLogo({ className }: { className?: string }) {
+  return (
+    <svg viewBox="-11.5 -10.23174 23 20.46348" className={className} aria-label="React Logo">
+      <circle cx="0" cy="0" r="2.05" fill="#00D8FF" />
+      <g stroke="#00D8FF" strokeWidth="1" fill="none">
+        <ellipse rx="11" ry="4.2" />
+        <ellipse rx="11" ry="4.2" transform="rotate(60)" />
+        <ellipse rx="11" ry="4.2" transform="rotate(120)" />
+      </g>
+    </svg>
+  );
+}
+
+function TypeScriptLogo({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 256 256" className={className} aria-label="TypeScript Logo">
+      <path
+        fill="#3178C6"
+        d="M20 0h216c11.046 0 20 8.954 20 20v216c0 11.046-8.954 20-20 20H20c-11.046 0-20-8.954-20-20V20C0 8.954 8.954 0 20 0z"
+      />
+      <path
+        fill="#FFFFFF"
+        d="M150.518 200.475v27.62q6.738 3.453 15.938 5.179T185.849 235q9.934 0 18.874-1.899t15.678-6.257q6.738-4.359 10.669-11.394q3.93-7.033 3.93-17.391q0-7.51-2.246-13.163a30.8 30.8 0 0 0-6.479-10.055q-4.232-4.402-10.149-7.898t-13.347-6.602q-5.442-2.245-9.761-4.359t-7.342-4.316q-3.024-2.2-4.665-4.661t-1.641-5.567q0-2.848 1.468-5.135q1.469-2.288 4.147-3.927t6.565-2.547q3.887-.906 8.638-.906q3.456 0 7.299.518q3.844.517 7.732 1.597a54 54 0 0 1 7.558 2.719a41.7 41.7 0 0 1 6.781 3.797v-25.807q-6.306-2.417-13.778-3.582T198.633 107q-9.847 0-18.658 2.115q-8.811 2.114-15.506 6.602q-6.694 4.49-10.582 11.437Q150 134.102 150 143.769q0 12.342 7.127 21.06t21.638 14.759a292 292 0 0 1 10.625 4.575q4.924 2.244 8.509 4.66t5.658 5.265t2.073 6.474a9.9 9.9 0 0 1-1.296 4.963q-1.295 2.287-3.93 3.97t-6.565 2.632t-9.2.95q-8.983 0-17.794-3.151t-16.327-9.451m-46.036-68.733H140V109H41v22.742h35.345V233h28.137z"
+      />
+    </svg>
+  );
+}
+
+function TechIcon({ id }: { id: string }) {
+  if (id === "fastapi") return <FastAPILogo className={styles.stackSvg} />;
+  if (id === "python") return <PythonLogo className={styles.stackSvg} />;
+  if (id === "react") return <ReactLogo className={styles.stackSvg} />;
+  return <TypeScriptLogo className={styles.stackSvg} />;
+}
+
+function TentacleArm({ variant }: { variant: number }) {
+  if (variant === 0) {
+    return (
+      <svg
+        viewBox="0 0 100 68"
+        fill="none"
+        className={styles.tentacleSvg}
+        aria-hidden="true"
+      >
+        <path
+          d="M0 44 C26 44 42 56 64 54 C82 52 94 40 90 22 C86 8 72 10 66 20"
+          stroke="var(--head-shadow)"
+          strokeWidth="18"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M0 44 C26 44 42 56 64 54 C82 52 94 40 90 22 C86 8 72 10 66 20"
+          stroke="var(--head-body)"
+          strokeWidth="12"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M6 38 C28 38 42 48 64 46"
+          stroke="var(--head-shine)"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+        <circle cx="20" cy="54" r="4.5" fill="var(--head-blush)" stroke="var(--head-shadow)" strokeWidth="1.5" />
+        <circle cx="42" cy="62" r="5" fill="var(--head-blush)" stroke="var(--head-shadow)" strokeWidth="1.5" />
+        <circle cx="66" cy="59" r="4.5" fill="var(--head-blush)" stroke="var(--head-shadow)" strokeWidth="1.5" />
+        <circle cx="84" cy="44" r="4" fill="var(--head-blush)" stroke="var(--head-shadow)" strokeWidth="1.5" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg
+      viewBox="0 0 100 68"
+      fill="none"
+      className={styles.tentacleSvg}
+      aria-hidden="true"
+    >
+      <path
+        d="M0 24 C26 24 42 12 64 14 C82 16 94 28 90 46 C86 60 72 58 66 48"
+        stroke="var(--head-shadow)"
+        strokeWidth="18"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M0 24 C26 24 42 12 64 14 C82 16 94 28 90 46 C86 60 72 58 66 48"
+        stroke="var(--head-body)"
+        strokeWidth="12"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M6 30 C28 30 42 20 64 22"
+        stroke="var(--head-shine)"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+      <circle cx="20" cy="14" r="4.5" fill="var(--head-blush)" stroke="var(--head-shadow)" strokeWidth="1.5" />
+      <circle cx="42" cy="6" r="5" fill="var(--head-blush)" stroke="var(--head-shadow)" strokeWidth="1.5" />
+      <circle cx="66" cy="9" r="4.5" fill="var(--head-blush)" stroke="var(--head-shadow)" strokeWidth="1.5" />
+      <circle cx="84" cy="24" r="4" fill="var(--head-blush)" stroke="var(--head-shadow)" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
 /** The map head, on its side, tucked behind the right edge of the profile. */
-function ProfileHead() {
+function ProfileHead({ tone }: { tone: "blue" | "pink" }) {
   return (
     <span className={styles.head} aria-hidden="true">
         <svg viewBox="568 8 210 228" fill="none" aria-hidden="true">
@@ -102,6 +246,127 @@ function ProfileHead() {
             className={styles.headTongue}
             d="M661 181.835C668.333 175.812 676 176.188 684 182.965C676 188.988 668.333 188.612 661 181.835Z"
           />
+
+          {/* Tone-specific accessories */}
+          {tone === "blue" ? (
+            /* Glasses for the blue octopus */
+            <g aria-label="Glasses">
+              <ellipse
+                cx="635"
+                cy="122"
+                rx="23"
+                ry="25"
+                stroke="#12284c"
+                strokeWidth="4"
+                fill="rgba(215, 236, 255, 0.22)"
+              />
+              <path
+                d="M623 108 L645 108"
+                stroke="#ffffff"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                opacity="0.8"
+              />
+              <ellipse
+                cx="705"
+                cy="122"
+                rx="23"
+                ry="25"
+                stroke="#12284c"
+                strokeWidth="4"
+                fill="rgba(215, 236, 255, 0.22)"
+              />
+              <path
+                d="M693 108 L715 108"
+                stroke="#ffffff"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                opacity="0.8"
+              />
+              <path
+                d="M658 119 C664 113 676 113 682 119"
+                stroke="#12284c"
+                strokeWidth="4"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M612 120 L588 116"
+                stroke="#12284c"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+              />
+              <path
+                d="M728 120 L752 116"
+                stroke="#12284c"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+              />
+            </g>
+          ) : (
+            /* Long, curled eyelashes for the pink octopus */
+            <g aria-label="Curled eyelashes">
+              {/* Left eye eyeliner & curled lashes */}
+              <path
+                d="M611 95 C621 78 649 78 659 95"
+                stroke="#352056"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M614 88 C606 80 598 66 604 54 C606 50 610 52 609 56"
+                stroke="#352056"
+                strokeWidth="3"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M627 80 C623 68 620 52 628 42 C630 38 634 40 632 45"
+                stroke="#352056"
+                strokeWidth="3"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M643 80 C645 70 650 56 658 48 C660 46 663 48 661 51"
+                stroke="#352056"
+                strokeWidth="2.6"
+                strokeLinecap="round"
+                fill="none"
+              />
+
+              {/* Right eye eyeliner & curled lashes */}
+              <path
+                d="M681 95 C691 78 719 78 729 95"
+                stroke="#352056"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M697 80 C695 70 690 56 682 48 C680 46 677 48 679 51"
+                stroke="#352056"
+                strokeWidth="2.6"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M713 80 C717 68 720 52 712 42 C710 38 706 40 708 45"
+                stroke="#352056"
+                strokeWidth="3"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M726 88 C734 80 742 66 736 54 C734 50 730 52 731 56"
+                stroke="#352056"
+                strokeWidth="3"
+                strokeLinecap="round"
+                fill="none"
+              />
+            </g>
+          )}
         </svg>
     </span>
   );
@@ -126,17 +391,37 @@ export default function AboutDevsPage() {
               className={styles.slot}
               data-tone={index === 0 ? "blue" : "pink"}
             >
-              <ProfileHead />
-              <div className={styles.stack} aria-hidden="true">
-                <span className={styles.stackLayer} />
-                <span className={styles.stackLayer} />
-                <span className={styles.stackLayer} />
+              <ProfileHead tone={index === 0 ? "blue" : "pink"} />
+              <div
+                className={styles.stackDrawer}
+                aria-label={`${profile.name} tech stack`}
+              >
+                {profile.stack.map((item, idx) => (
+                  <div
+                    key={item.id}
+                    className={styles.tentacleRow}
+                    data-tech={item.id}
+                  >
+                    <div className={styles.tentacleArm} aria-hidden="true">
+                      <TentacleArm variant={idx} />
+                    </div>
+                    <span
+                      className={styles.logoBadge}
+                      title={item.name}
+                      aria-label={item.name}
+                    >
+                      <TechIcon id={item.id} />
+                    </span>
+                  </div>
+                ))}
               </div>
               <div className={styles.profile}>
               <div className={styles.identity}>
-                <span className={styles.avatar} aria-hidden="true">
-                  {profile.name.slice(0, 1)}
-                </span>
+                <img
+                  className={styles.avatar}
+                  src={index === 0 ? "/boy.jpg" : "/girl.jpg"}
+                  alt={`${profile.name} avatar`}
+                />
                 <div>
                   <h2>{profile.name}</h2>
                   <p className={styles.role}>{profile.role}</p>

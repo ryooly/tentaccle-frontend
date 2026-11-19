@@ -142,24 +142,32 @@ export const explorerCopy = {
     // Paste profile URLs here. An empty href still shows the button.
     profiles: [
       {
-        name: "RyoLeee",
+        name: "ryolly",
         role: "Backend",
         focus: "Keeps the fee feed honest and sends each chain’s numbers to the map.",
+        stack: [
+          { id: "fastapi" as const, name: "FastAPI" },
+          { id: "python" as const, name: "Python" },
+        ],
         details: [
           { label: "Focus", value: "Live fees, token price, 24h transactions, validators" },
           { label: "Contributions", value: "Hourly, daily, and weekly activity charts" },
           { label: "Title", value: "Fullstack & AI Integration" },
         ],
         links: [
-          { id: "github" as const, label: "GitHub", href: "https://github.com/RyoLeee" },
-          { id: "x" as const, label: "X", href: "" },
-          { id: "linkedin" as const, label: "LinkedIn", href: "" },
+          { id: "github" as const, label: "GitHub", href: "https://github.com/ryooly" },
+          { id: "x" as const, label: "X", href: "https://x.com/ryollie?s=11" },
+          { id: "linkedin" as const, label: "LinkedIn", href: "https://www.linkedin.com/in/satrio-a-84445a335?utm_source=share_via&utm_content=profile&utm_medium=member_ios" },
         ],
       },
       {
-        name: "Developer",
+        name: "matchha",
         role: "Frontend",
         focus: "Draws the explorer so eight networks stay readable on one screen.",
+        stack: [
+          { id: "react" as const, name: "React" },
+          { id: "ts" as const, name: "TypeScript" },
+        ],
         details: [
           { label: "Focus", value: "Gas map, search, and chain pages" },
           { label: "Contributions", value: "Docs and the activity chart on screen" },
@@ -167,8 +175,6 @@ export const explorerCopy = {
         ],
         links: [
           { id: "github" as const, label: "GitHub", href: "" },
-          { id: "x" as const, label: "X", href: "" },
-          { id: "linkedin" as const, label: "LinkedIn", href: "" },
         ],
       },
     ],

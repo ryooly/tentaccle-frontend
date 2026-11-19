@@ -143,4 +143,10 @@
   .mouth {
     animation: none;
   }
+  .pupilsGroup {
+    transition: none;
+  }
+  .bubble {
+    animation: none;
+  }
 }
